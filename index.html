@@ -234,7 +234,7 @@
                         <div class="stat-label">Active Employees</div>
                         <div class="stat-number" id="smet2-count">-</div>
                     </div>
-                    <div class="department-card smet2" onclick="showSection('smet2')">
+                    <div class="department-card smet2" onclick="window.location.href='smet2.html'">
                         <div class="card-icon">⚡</div>
                         <div class="department-name">SMET2</div>
                     </div>
@@ -276,19 +276,6 @@
             <div class="section-content">
                 <p>Welcome to the Solar Department section. This area manages all solar energy initiatives and installations.</p>
                 <!-- Add your solar-specific content here -->
-            </div>
-        </div>
-
-        <!-- SMET2 Section -->
-        <div id="smet2-section" class="section-page">
-            <button class="back-button" onclick="showHome()">← Back to Dashboard</button>
-            <div class="section-header">
-                <div class="section-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">⚡</div>
-                <h2 class="section-title">SMET2 Department</h2>
-            </div>
-            <div class="section-content">
-                <p>Welcome to the SMET2 Department section. This area handles Smart Meter Equipment Technical Specifications version 2.</p>
-                <!-- Add your SMET2-specific content here -->
             </div>
         </div>
 
@@ -335,7 +322,6 @@
         function showSection(section) {
             document.getElementById('home-page').style.display = 'none';
             document.getElementById('solar-section').classList.remove('active');
-            document.getElementById('smet2-section').classList.remove('active');
             document.getElementById('amr-section').classList.remove('active');
             document.getElementById('training-section').classList.remove('active');
             
@@ -345,7 +331,6 @@
         function showHome() {
             document.getElementById('home-page').style.display = 'block';
             document.getElementById('solar-section').classList.remove('active');
-            document.getElementById('smet2-section').classList.remove('active');
             document.getElementById('amr-section').classList.remove('active');
             document.getElementById('training-section').classList.remove('active');
         }
