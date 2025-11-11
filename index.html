@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -42,23 +42,52 @@
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
             margin-top: 40px;
+        }
+
+        .department-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
         }
 
         .department-card {
             background: white;
-            border-radius: 20px;
-            padding: 30px;
+            border-radius: 15px;
+            padding: 40px 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             cursor: pointer;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             text-align: center;
+            flex: 1;
         }
 
         .department-card:hover {
-            transform: translateY(-10px);
+            transform: translateY(-5px);
             box-shadow: 0 15px 40px rgba(0,0,0,0.4);
         }
 
@@ -91,21 +120,6 @@
         .training .card-icon {
             background: linear-gradient(135deg, #43e97b, #38f9d7);
             color: white;
-        }
-
-        .count-label {
-            font-size: 0.9rem;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-        }
-
-        .count-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
         }
 
         .department-name {
@@ -175,6 +189,12 @@
             font-size: 1.1rem;
         }
 
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 2rem;
@@ -196,32 +216,52 @@
         <!-- Home Page -->
         <div id="home-page">
             <div class="dashboard-grid">
-                <div class="department-card solar" onclick="showSection('solar')">
-                    <div class="card-icon">☀️</div>
-                    <div class="count-label">Active Employees</div>
-                    <div class="count-number">24</div>
-                    <div class="department-name">Solar</div>
+                <!-- Solar Column -->
+                <div class="department-column">
+                    <div class="stat-card">
+                        <div class="stat-label">Active Employees</div>
+                        <div class="stat-number" id="solar-count">-</div>
+                    </div>
+                    <div class="department-card solar" onclick="showSection('solar')">
+                        <div class="card-icon">☀️</div>
+                        <div class="department-name">Solar</div>
+                    </div>
                 </div>
 
-                <div class="department-card smet2" onclick="showSection('smet2')">
-                    <div class="card-icon">⚡</div>
-                    <div class="count-label">Active Employees</div>
-                    <div class="count-number">18</div>
-                    <div class="department-name">SMET2</div>
+                <!-- SMET2 Column -->
+                <div class="department-column">
+                    <div class="stat-card">
+                        <div class="stat-label">Active Employees</div>
+                        <div class="stat-number" id="smet2-count">-</div>
+                    </div>
+                    <div class="department-card smet2" onclick="showSection('smet2')">
+                        <div class="card-icon">⚡</div>
+                        <div class="department-name">SMET2</div>
+                    </div>
                 </div>
 
-                <div class="department-card amr" onclick="showSection('amr')">
-                    <div class="card-icon">📡</div>
-                    <div class="count-label">Active Employees</div>
-                    <div class="count-number">15</div>
-                    <div class="department-name">AMR</div>
+                <!-- AMR Column -->
+                <div class="department-column">
+                    <div class="stat-card">
+                        <div class="stat-label">Active Employees</div>
+                        <div class="stat-number" id="amr-count">-</div>
+                    </div>
+                    <div class="department-card amr" onclick="showSection('amr')">
+                        <div class="card-icon">📡</div>
+                        <div class="department-name">AMR</div>
+                    </div>
                 </div>
 
-                <div class="department-card training" onclick="showSection('training')">
-                    <div class="card-icon">📚</div>
-                    <div class="count-label">Booked Sessions</div>
-                    <div class="count-number">12</div>
-                    <div class="department-name">Training</div>
+                <!-- Training Column -->
+                <div class="department-column">
+                    <div class="stat-card">
+                        <div class="stat-label">Booked Sessions</div>
+                        <div class="stat-number" id="training-count">-</div>
+                    </div>
+                    <div class="department-card training" onclick="showSection('training')">
+                        <div class="card-icon">📚</div>
+                        <div class="department-name">Training</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -235,7 +275,6 @@
             </div>
             <div class="section-content">
                 <p>Welcome to the Solar Department section. This area manages all solar energy initiatives and installations.</p>
-                <p><strong>Active Employees:</strong> 24</p>
                 <!-- Add your solar-specific content here -->
             </div>
         </div>
@@ -249,7 +288,6 @@
             </div>
             <div class="section-content">
                 <p>Welcome to the SMET2 Department section. This area handles Smart Meter Equipment Technical Specifications version 2.</p>
-                <p><strong>Active Employees:</strong> 18</p>
                 <!-- Add your SMET2-specific content here -->
             </div>
         </div>
@@ -263,7 +301,6 @@
             </div>
             <div class="section-content">
                 <p>Welcome to the AMR Department section. This area manages Automatic Meter Reading operations.</p>
-                <p><strong>Active Employees:</strong> 15</p>
                 <!-- Add your AMR-specific content here -->
             </div>
         </div>
@@ -277,13 +314,24 @@
             </div>
             <div class="section-content">
                 <p>Welcome to the Training Department section. This area coordinates all employee training and development programs.</p>
-                <p><strong>Booked Sessions:</strong> 12</p>
                 <!-- Add your training-specific content here -->
             </div>
         </div>
     </div>
 
     <script>
+        // Load counts from data source or set them dynamically
+        function loadCounts() {
+            // Replace these with your actual data source (API call, database, etc.)
+            // For now, they display "-" until you populate them
+            
+            // Example of how to set the counts:
+            // document.getElementById('solar-count').textContent = '24';
+            // document.getElementById('smet2-count').textContent = '18';
+            // document.getElementById('amr-count').textContent = '15';
+            // document.getElementById('training-count').textContent = '12';
+        }
+
         function showSection(section) {
             document.getElementById('home-page').style.display = 'none';
             document.getElementById('solar-section').classList.remove('active');
@@ -301,6 +349,9 @@
             document.getElementById('amr-section').classList.remove('active');
             document.getElementById('training-section').classList.remove('active');
         }
+
+        // Load counts when page loads
+        loadCounts();
     </script>
 </body>
 </html>
