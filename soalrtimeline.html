@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Timeline - Next Generation Utilities</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #ff9a56, #ffd84d);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #333;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            background: #5568d3;
+        }
+
+        .timeline-container {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: background 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #5568d3;
+        }
+
+        .timeline-scroll {
+            overflow-x: auto;
+            overflow-y: visible;
+        }
+
+        .timeline-grid {
+            display: grid;
+            grid-template-columns: 150px repeat(7, 150px);
+            min-width: fit-content;
+        }
+
+        .timeline-header {
+            display: contents;
+        }
+
+        .header-cell {
+            padding: 15px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            font-weight: 600;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .team-label-cell {
+            position: sticky;
+            left: 0;
+            background: #f8f9fa;
+            z-index: 5;
+        }
+
+        .date-header {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .day-name {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .date-number {
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .timeline-row {
+            display: contents;
+        }
+
+        .team-cell {
+            padding: 15px;
+            background: #e9ecef;
+            border: 1px solid #dee2e6;
+            font-weight: 600;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+        }
+
+        .day-cell {
+            padding: 5px;
+            border: 1px solid #dee2e6;
+            background: white;
+            position: relative;
+            min-height: 80px;
+        }
+
+        .job-container {
+            position: relative;
+            height: 100%;
+        }
+
+        .job-block {
+            position: absolute;
+            top: 5px;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            z-index: 1;
+            height: calc(100% - 10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .job-block:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 2;
+        }
+
+        .job-1 { background: linear-gradient(135deg, #ff9a56, #ffd84d); }
+        .job-2 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .job-3 { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+        .job-4 { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .job-5 { background: linear-gradient(135deg, #fa709a, #fee140); }
+
+        .today {
+            background: #fff3cd !important;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .timeline-grid {
+                grid-template-columns: 120px repeat(7, 120px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <div class="header-icon">📅</div>
+                <h1>Solar Timeline</h1>
+            </div>
+            <a href="solar.html" class="back-button">← Back to Solar</a>
+        </header>
+
+        <div class="timeline-container">
+            <div class="navigation-buttons">
+                <button class="nav-btn" onclick="previousWeek()">← Previous Week</button>
+                <button class="nav-btn" onclick="goToToday()">Today</button>
+                <button class="nav-btn" onclick="nextWeek()">Next Week →</button>
+            </div>
+
+            <div class="timeline-scroll">
+                <div class="timeline-grid" id="timeline-grid">
+                    <!-- Grid will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample teams data - replace with your actual data source
+        const teams = [
+            { id: 1, name: "Team Alpha" },
+            { id: 2, name: "Team Bravo" },
+            { id: 3, name: "Team Charlie" },
+            { id: 4, name: "Team Delta" }
+        ];
+
+        // Sample jobs data - replace with your actual data source
+        // startDate and duration in days
+        const jobs = [
+            { id: 1, teamId: 1, name: "Residential Install - Smith", startDate: "2025-11-17", duration: 2, colorClass: "job-1" },
+            { id: 2, teamId: 1, name: "Commercial Project", startDate: "2025-11-20", duration: 3, colorClass: "job-2" },
+            { id: 3, teamId: 2, name: "Maintenance - Jones Ave", startDate: "2025-11-15", duration: 1, colorClass: "job-3" },
+            { id: 4, teamId: 2, name: "New Install - Downtown", startDate: "2025-11-18", duration: 3, colorClass: "job-4" },
+            { id: 5, teamId: 3, name: "Inspection - Park St", startDate: "2025-11-16", duration: 2, colorClass: "job-5" },
+            { id: 6, teamId: 3, name: "Repair Work", startDate: "2025-11-19", duration: 1, colorClass: "job-1" },
+            { id: 7, teamId: 4, name: "Large Commercial", startDate: "2025-11-14", duration: 5, colorClass: "job-2" }
+        ];
+
+        let currentStartDate = new Date();
+        currentStartDate.setHours(0, 0, 0, 0);
+
+        function formatDate(date) {
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return {
+                dayName: days[date.getDay()],
+                dateNumber: date.getDate(),
+                month: months[date.getMonth()],
+                fullDate: date.toISOString().split('T')[0]
+            };
+        }
+
+        function renderTimeline() {
+            const grid = document.getElementById('timeline-grid');
+            grid.innerHTML = '';
+
+            // Generate 7 days starting from currentStartDate
+            const dates = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(currentStartDate);
+                date.setDate(currentStartDate.getDate() + i);
+                dates.push(date);
+            }
+
+            // Header row
+            const headerRow = document.createElement('div');
+            headerRow.className = 'timeline-header';
+            
+            // Team column header
+            const teamHeader = document.createElement('div');
+            teamHeader.className = 'header-cell team-label-cell';
+            teamHeader.textContent = 'Team';
+            headerRow.appendChild(teamHeader);
+
+            // Date headers
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            dates.forEach(date => {
+                const dateCell = document.createElement('div');
+                dateCell.className = 'header-cell';
+                if (date.getTime() === today.getTime()) {
+                    dateCell.classList.add('today');
+                }
+                const formatted = formatDate(date);
+                dateCell.innerHTML = `
+                    <div class="date-header">
+                        <div class="day-name">${formatted.dayName}</div>
+                        <div class="date-number">${formatted.month} ${formatted.dateNumber}</div>
+                    </div>
+                `;
+                headerRow.appendChild(dateCell);
+            });
+
+            grid.appendChild(headerRow);
+
+            // Team rows
+            teams.forEach(team => {
+                const row = document.createElement('div');
+                row.className = 'timeline-row';
+
+                // Team name cell
+                const teamCell = document.createElement('div');
+                teamCell.className = 'team-cell';
+                teamCell.textContent = team.name;
+                row.appendChild(teamCell);
+
+                // Create array to track which jobs have been rendered
+                const renderedJobs = new Set();
+
+                // Day cells for this team
+                dates.forEach((date, dateIndex) => {
+                    const dayCell = document.createElement('div');
+                    dayCell.className = 'day-cell';
+                    if (date.getTime() === today.getTime()) {
+                        dayCell.classList.add('today');
+                    }
+
+                    const jobContainer = document.createElement('div');
+                    jobContainer.className = 'job-container';
+
+                    // Find jobs for this team that start on or before this date
+                    const dateStr = date.toISOString().split('T')[0];
+                    jobs.forEach(job => {
+                        if (job.teamId === team.id && !renderedJobs.has(job.id)) {
+                            const jobStart = new Date(job.startDate);
+                            const jobEnd = new Date(jobStart);
+                            jobEnd.setDate(jobStart.getDate() + job.duration - 1);
+
+                            // Check if this job starts on this date
+                            if (date.getTime() === jobStart.getTime()) {
+                                // Calculate how many days of this job are visible in current week
+                                const weekEnd = dates[dates.length - 1];
+                                const visibleEnd = jobEnd < weekEnd ? jobEnd : weekEnd;
+                                
+                                // Calculate the span in days
+                                const spanDays = Math.floor((visibleEnd - date) / (1000 * 60 * 60 * 24)) + 1;
+                                
+                                const jobBlock = document.createElement('div');
+                                jobBlock.className = `job-block ${job.colorClass}`;
+                                jobBlock.textContent = job.name;
+                                jobBlock.title = `${job.name}\n${job.duration} day(s)`;
+                                jobBlock.onclick = () => alert(`Job: ${job.name}\nDuration: ${job.duration} day(s)\nStart: ${job.startDate}`);
+                                
+                                // Calculate width: span across multiple cells
+                                const cellWidth = 150; // Must match grid column width
+                                const gapWidth = 0; // Borders handle visual separation
+                                jobBlock.style.width = `calc(${spanDays * 100}% + ${(spanDays - 1) * 2}px)`;
+                                jobBlock.style.left = '5px';
+                                
+                                jobContainer.appendChild(jobBlock);
+                                renderedJobs.add(job.id);
+                            }
+                        }
+                    });
+
+                    dayCell.appendChild(jobContainer);
+                    row.appendChild(dayCell);
+                });
+
+                grid.appendChild(row);
+            });
+        }
+
+        function previousWeek() {
+            currentStartDate.setDate(currentStartDate.getDate() - 7);
+            renderTimeline();
+        }
+
+        function nextWeek() {
+            currentStartDate.setDate(currentStartDate.getDate() + 7);
+            renderTimeline();
+        }
+
+        function goToToday() {
+            currentStartDate = new Date();
+            currentStartDate.setHours(0, 0, 0, 0);
+            renderTimeline();
+        }
+
+        // Initial render
+        renderTimeline();
+    </script>
+</body>
+</html>
