@@ -161,7 +161,58 @@
                 <h1>Solar Department</h1>
             </div>
         </header>
+ <div id="home-page">
+            <div class="dashboard-grid">
+                <!-- Solar Column -->
+                <div class="department-column">
+                    <div class="stat-card">
+                        <div class="stat-label">Jobs Scheduled</div>
+                        <div class="stat-number" id="solar-count">-</div>
+                    </div>
+                    <div class="department-card solar" onclick="window.location.href='solar.html'">
+                        <div class="card-icon"></div>
+                        <div class="department-name">Jobs Scheduled</div>
+                    </div>
+                </div>
 
+                <!-- SMET2 Column -->
+                <div class="department-column">
+                    <div class="stat-card">
+                        <div class="stat-label">In-progress Jobs</div>
+                        <div class="stat-number" id="smet2-count">-</div>
+                    </div>
+                    <div class="department-card smet2" onclick="window.location.href='smet2.html'">
+                        <div class="card-icon"></div>
+                        <div class="department-name">In-progress Jobs</div>
+                    </div>
+                </div>
+
+                <!-- AMR Column -->
+                <div class="department-column">
+                    <div class="stat-card">
+                        <div class="stat-label">Completed Jobs</div>
+                        <div class="stat-number" id="amr-count">-</div>
+                    </div>
+                    <div class="department-card amr" onclick="showSection('amr')">
+                        <div class="card-icon"></div>
+                        <div class="department-name">Completed Jobs</div>
+                    </div>
+                </div>
+
+                <!-- Training Column -->
+                <div class="department-column">
+                    <div class="stat-card">
+                        <div class="stat-label">Revisits</div>
+                        <div class="stat-number" id="training-count">-</div>
+                    </div>
+                    <div class="department-card training" onclick="showSection('training')">
+                        <div class="card-icon"></div>
+                        <div class="department-name">Revisits</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="modules-grid">
             <div class="module-card add-job" onclick="alert('Add/View Job functionality coming soon')">
                 <div class="module-icon">➕</div>
