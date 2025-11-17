@@ -846,7 +846,7 @@
             }
         };
 
-        /// Send Confirmation Email
+// Send Confirmation Email
         async function sendConfirmationEmail(job, installationDate) {
             const formattedDate = new Date(installationDate).toLocaleDateString('en-GB', { 
                 weekday: 'long', 
@@ -888,7 +888,9 @@
                 throw new Error(`Failed to send email: ${errorText}`);
             }
 
-            return await response.json();
+            // EmailJS returns "OK" as text on success, not JSON
+            const result = await response.text();
+            return result;
         }
 
         // Close Action Modal
