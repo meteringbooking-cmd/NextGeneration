@@ -23,6 +23,30 @@
             margin: 0 auto;
         }
 
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .back-button:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
         header {
             background: white;
             border-radius: 20px;
@@ -54,26 +78,81 @@
             color: #333;
         }
 
-        .back-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1rem;
+        /* Counter Section */
+        .counters-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
             margin-bottom: 30px;
-            transition: background 0.3s ease;
-            text-decoration: none;
         }
 
-        .back-button:hover {
-            background: #5568d3;
+        .counter-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
+        .counter-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        .counter-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .counter-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .awaiting .counter-icon {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        .in-progress .counter-icon {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+
+        .completed .counter-icon {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+        }
+
+        .cancelled .counter-icon {
+            background: linear-gradient(135deg, #fa709a, #fee140);
+        }
+
+        .revisiting .counter-icon {
+            background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+        }
+
+        .counter-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .counter-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-top: 5px;
+        }
+
+        /* Modules Section */
         .modules-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -125,6 +204,14 @@
             background: linear-gradient(135deg, #43e97b, #38f9d7);
         }
 
+        .webform .module-icon {
+            background: linear-gradient(135deg, #fa709a, #fee140);
+        }
+
+        .historic .module-icon {
+            background: linear-gradient(135deg, #30cfd0, #330867);
+        }
+
         .module-title {
             font-size: 1.5rem;
             font-weight: 600;
@@ -145,6 +232,14 @@
                 font-size: 2rem;
             }
             
+            .counters-section {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            .counter-value {
+                font-size: 2rem;
+            }
+            
             .modules-grid {
                 grid-template-columns: 1fr;
             }
@@ -161,9 +256,51 @@
                 <h1>Solar Department</h1>
             </div>
         </header>
- <div id="home-page">
-            <div class="dashboard-grid">
-                       
+
+        <!-- Counter Displays -->
+        <div class="counters-section">
+            <div class="counter-card awaiting">
+                <div class="counter-header">
+                    <div class="counter-icon">⏳</div>
+                    <div class="counter-label">Awaiting Work</div>
+                </div>
+                <div class="counter-value">12</div>
+            </div>
+
+            <div class="counter-card in-progress">
+                <div class="counter-header">
+                    <div class="counter-icon">🔧</div>
+                    <div class="counter-label">In-Progress Jobs</div>
+                </div>
+                <div class="counter-value">8</div>
+            </div>
+
+            <div class="counter-card completed">
+                <div class="counter-header">
+                    <div class="counter-icon">✓</div>
+                    <div class="counter-label">Completed Jobs</div>
+                </div>
+                <div class="counter-value">45</div>
+            </div>
+
+            <div class="counter-card cancelled">
+                <div class="counter-header">
+                    <div class="counter-icon">✕</div>
+                    <div class="counter-label">Cancelled Jobs</div>
+                </div>
+                <div class="counter-value">3</div>
+            </div>
+
+            <div class="counter-card revisiting">
+                <div class="counter-header">
+                    <div class="counter-icon">🔄</div>
+                    <div class="counter-label">Currently Revisiting</div>
+                </div>
+                <div class="counter-value">2</div>
+            </div>
+        </div>
+
+        <!-- Modules Grid -->
         <div class="modules-grid">
             <div class="module-card add-job" onclick="alert('Add/View Job functionality coming soon')">
                 <div class="module-icon">➕</div>
@@ -171,10 +308,10 @@
                 <div class="module-description">Create and manage new solar installation jobs</div>
             </div>
 
-            <div class="module-card timeline" onclick="alert('Webform functionality coming soon')">
-                <div class="module-icon"></div>
+            <div class="module-card webform" onclick="alert('Webform functionality coming soon')">
+                <div class="module-icon">📝</div>
                 <div class="module-title">Webform</div>
-                <div class="module-description">Webform for Suveryors</div>
+                <div class="module-description">Webform for Surveyors</div>
             </div>
 
             <div class="module-card add-team" onclick="alert('Add Team functionality coming soon')">
@@ -195,8 +332,8 @@
                 <div class="module-description">Manage billing and invoicing for solar projects</div>
             </div>
 
-            <div class="module-card invoices" onclick="alert('Historic Jobs coming soon')">
-                <div class="module-icon"></div>
+            <div class="module-card historic" onclick="alert('Historic Jobs coming soon')">
+                <div class="module-icon">📚</div>
                 <div class="module-title">Historic Jobs</div>
                 <div class="module-description">View all historic jobs</div>
             </div>
