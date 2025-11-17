@@ -193,7 +193,7 @@
         }
 
         .job-card.expanded .job-details {
-            max-height: 1000px;
+            max-height: 2000px;
         }
 
         .job-details-content {
@@ -251,11 +251,189 @@
             margin-bottom: 10px;
         }
 
+        .files-section {
+            grid-column: 1 / -1;
+            background: #f0f7ff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            margin-top: 15px;
+        }
+
+        .files-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .file-preview-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .file-preview-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .file-preview-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .file-preview-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-preview-date {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .no-files {
+            color: #666;
+            font-style: italic;
+            padding: 10px;
+        }
+
         .timestamp {
             color: #999;
             font-size: 0.85rem;
             margin-top: 15px;
             text-align: right;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            margin-left: 15px;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 0;
+            max-height: calc(90vh - 80px);
+            overflow: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f5f5f5;
+        }
+
+        .modal-body img {
+            max-width: 100%;
+            max-height: calc(90vh - 80px);
+            display: block;
+        }
+
+        .modal-body iframe {
+            width: 100%;
+            height: calc(90vh - 80px);
+            border: none;
+        }
+
+        .download-link {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            margin: 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .download-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
 
         @media (max-width: 768px) {
@@ -271,6 +449,15 @@
 
             h1 {
                 font-size: 1.5rem;
+            }
+
+            .files-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                max-width: 95%;
+                max-height: 95%;
             }
         }
     </style>
@@ -294,6 +481,17 @@
             <div class="loading" id="loading">Loading jobs...</div>
             <div class="no-jobs" id="noJobs" style="display: none;">No jobs found</div>
             <div id="jobsList"></div>
+        </div>
+    </div>
+
+    <!-- File Viewer Modal -->
+    <div class="modal" id="fileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">File Preview</div>
+                <button class="modal-close" id="modalClose">×</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
         </div>
     </div>
 
@@ -378,6 +576,34 @@
         function createJobCard(job) {
             const timestamp = job.submittedAt ? new Date(job.submittedAt.toDate()).toLocaleString() : 'N/A';
             
+            // Sort uploaded files by date (most recent first)
+            const uploadedFiles = job.uploadedFiles || [];
+            const sortedFiles = [...uploadedFiles].sort((a, b) => {
+                const dateA = new Date(a.uploadedAt || 0);
+                const dateB = new Date(b.uploadedAt || 0);
+                return dateB - dateA; // Descending order
+            });
+
+            const filesHTML = sortedFiles.length > 0 ? `
+                <div class="files-section">
+                    <h3>📎 Uploaded Files (${sortedFiles.length})</h3>
+                    <div class="files-grid">
+                        ${sortedFiles.map((file, index) => `
+                            <div class="file-preview-card" onclick="openFileModal('${file.url}', '${file.name.replace(/'/g, "\\'")}', '${file.type || ''}')">
+                                <div class="file-preview-icon">${getFileIcon(file.name)}</div>
+                                <div class="file-preview-name" title="${file.name}">${file.name}</div>
+                                <div class="file-preview-date">${formatFileDate(file.uploadedAt)}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : `
+                <div class="files-section">
+                    <h3>📎 Uploaded Files</h3>
+                    <div class="no-files">No files uploaded yet</div>
+                </div>
+            `;
+            
             return `
                 <div class="job-card">
                     <div class="job-header">
@@ -451,6 +677,8 @@
                                         <div class="detail-value">${job.notes}</div>
                                     </div>
                                 ` : ''}
+
+                                ${filesHTML}
                             </div>
                             <div class="timestamp">Submitted: ${timestamp}</div>
                         </div>
@@ -458,6 +686,87 @@
                 </div>
             `;
         }
+
+        // Helper function to get file icon
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext)) return '🖼️';
+            if (['pdf'].includes(ext)) return '📄';
+            if (['doc', 'docx'].includes(ext)) return '📝';
+            if (['xls', 'xlsx'].includes(ext)) return '📊';
+            if (['zip', 'rar'].includes(ext)) return '📦';
+            if (['mp4', 'mov', 'avi'].includes(ext)) return '🎥';
+            return '📎';
+        }
+
+        // Helper function to format file date
+        function formatFileDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Modal functionality
+        const modal = document.getElementById('fileModal');
+        const modalClose = document.getElementById('modalClose');
+        const modalBody = document.getElementById('modalBody');
+        const modalTitle = document.getElementById('modalTitle');
+
+        window.openFileModal = function(url, filename, fileType) {
+            modalTitle.textContent = filename;
+            
+            // Determine file type from extension if not provided
+            const ext = filename.split('.').pop().toLowerCase();
+            const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+            const pdfExts = ['pdf'];
+            
+            modalBody.innerHTML = '';
+
+            if (imageExts.includes(ext) || fileType.startsWith('image/')) {
+                // Display image
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = filename;
+                modalBody.appendChild(img);
+            } else if (pdfExts.includes(ext) || fileType === 'application/pdf') {
+                // Display PDF in iframe
+                const iframe = document.createElement('iframe');
+                iframe.src = url;
+                modalBody.appendChild(iframe);
+            } else {
+                // For other file types, provide download link
+                modalBody.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <div style="font-size: 4rem; margin-bottom: 20px;">${getFileIcon(filename)}</div>
+                        <h3 style="color: #333; margin-bottom: 10px;">${filename}</h3>
+                        <p style="color: #666; margin-bottom: 20px;">This file type cannot be previewed</p>
+                        <a href="${url}" target="_blank" class="download-link">Download File</a>
+                    </div>
+                `;
+            }
+
+            modal.classList.add('active');
+        };
+
+        modalClose.addEventListener('click', () => {
+            modal.classList.remove('active');
+            modalBody.innerHTML = '';
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+                modalBody.innerHTML = '';
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                modal.classList.remove('active');
+                modalBody.innerHTML = '';
+            }
+        });
 
         // Search functionality
         document.getElementById('searchBox').addEventListener('input', function(e) {
