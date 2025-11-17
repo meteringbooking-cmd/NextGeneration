@@ -1,1 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Jobs - Solar Department</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .back-button:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .header-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #ff9a56, #ffd84d);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #333;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: #999;
+        }
+
+        .jobs-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .no-jobs {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .job-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .job-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            cursor: pointer;
+            background: #f8f9fa;
+            transition: background 0.3s ease;
+        }
+
+        .job-header:hover {
+            background: #e9ecef;
+        }
+
+        .job-summary {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .job-number {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #667eea;
+        }
+
+        .job-postcode {
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .expand-icon {
+            font-size: 1.5rem;
+            color: #667eea;
+            transition: transform 0.3s ease;
+        }
+
+        .job-card.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .job-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: white;
+        }
+
+        .job-card.expanded .job-details {
+            max-height: 1000px;
+        }
+
+        .job-details-content {
+            padding: 25px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .detail-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .detail-section h3 {
+            color: #667eea;
+            font-size: 1rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-item {
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .detail-value {
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .notes-section {
+            grid-column: 1 / -1;
+            background: #fff9e6;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ffd84d;
+        }
+
+        .notes-section h3 {
+            color: #f59e0b;
+            margin-bottom: 10px;
+        }
+
+        .timestamp {
+            color: #999;
+            font-size: 0.85rem;
+            margin-top: 15px;
+            text-align: right;
+        }
+
+        @media (max-width: 768px) {
+            .job-summary {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="solar-department.html" class="back-button">← Back to Solar Department</a>
+
+        <div class="header">
+            <div class="header-content">
+                <div class="header-icon">📋</div>
+                <h1>View Jobs</h1>
+            </div>
+            <div class="search-container">
+                <input type="text" class="search-box" id="searchBox" placeholder="Search by job number or postcode...">
+                <span class="search-icon">🔍</span>
+            </div>
+        </div>
+
+        <div class="jobs-container">
+            <div class="loading" id="loading">Loading jobs...</div>
+            <div class="no-jobs" id="noJobs" style="display: none;">No jobs found</div>
+            <div id="jobsList"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpCu9bhDYMRSOEsuUKCiq2F-fC3zMFJ4Q",
+            authDomain: "ngusolar-f527e.firebaseapp.com",
+            projectId: "ngusolar-f527e",
+            storageBucket: "ngusolar-f527e.firebasestorage.app",
+            messagingSenderId: "366807218136",
+            appId: "1:366807218136:web:67724479c7955f611e64ad",
+            measurementId: "G-R632HTYYKV"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let allJobs = [];
+
+        // Load jobs from Firebase
+        async function loadJobs() {
+            const loading = document.getElementById('loading');
+            const noJobs = document.getElementById('noJobs');
+            const jobsList = document.getElementById('jobsList');
+
+            try {
+                const q = query(collection(db, "solarSurveys"), orderBy("submittedAt", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                allJobs = [];
+                querySnapshot.forEach((doc) => {
+                    allJobs.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                loading.style.display = 'none';
+
+                if (allJobs.length === 0) {
+                    noJobs.style.display = 'block';
+                } else {
+                    displayJobs(allJobs);
+                }
+
+            } catch (error) {
+                console.error("Error loading jobs: ", error);
+                loading.innerHTML = `<div style="color: #e74c3c;">Error loading jobs: ${error.message}</div>`;
+            }
+        }
+
+        // Display jobs
+        function displayJobs(jobs) {
+            const jobsList = document.getElementById('jobsList');
+            const noJobs = document.getElementById('noJobs');
+
+            if (jobs.length === 0) {
+                jobsList.innerHTML = '';
+                noJobs.style.display = 'block';
+                return;
+            }
+
+            noJobs.style.display = 'none';
+            jobsList.innerHTML = jobs.map(job => createJobCard(job)).join('');
+
+            // Add click handlers
+            document.querySelectorAll('.job-header').forEach(header => {
+                header.addEventListener('click', function() {
+                    const card = this.closest('.job-card');
+                    card.classList.toggle('expanded');
+                });
+            });
+        }
+
+        // Create job card HTML
+        function createJobCard(job) {
+            const timestamp = job.submittedAt ? new Date(job.submittedAt.toDate()).toLocaleString() : 'N/A';
+            
+            return `
+                <div class="job-card">
+                    <div class="job-header">
+                        <div class="job-summary">
+                            <div class="job-number">Job #${job.jobNumber}</div>
+                            <div class="job-postcode">📍 ${job.customerDetails?.postcode || 'N/A'}</div>
+                        </div>
+                        <div class="expand-icon">▼</div>
+                    </div>
+                    <div class="job-details">
+                        <div class="job-details-content">
+                            <div class="details-grid">
+                                <div class="detail-section">
+                                    <h3>👤 Customer Details</h3>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Name:</span><br>
+                                        <span class="detail-value">${job.customerDetails?.name || 'N/A'}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Phone:</span><br>
+                                        <span class="detail-value">${job.customerDetails?.phone || 'N/A'}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Email:</span><br>
+                                        <span class="detail-value">${job.customerDetails?.email || 'N/A'}</span>
+                                    </div>
+                                </div>
+
+                                <div class="detail-section">
+                                    <h3>📍 Address</h3>
+                                    <div class="detail-item">
+                                        <span class="detail-value">
+                                            ${job.customerDetails?.addressLine1 || 'N/A'}<br>
+                                            ${job.customerDetails?.townCity || 'N/A'}<br>
+                                            ${job.customerDetails?.postcode || 'N/A'}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="detail-section">
+                                    <h3>☀️ Equipment Details</h3>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Solar Panels:</span>
+                                        <span class="detail-value">${job.solarPanels || 0}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Batteries:</span>
+                                        <span class="detail-value">${job.batteries || 0}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Hooks:</span>
+                                        <span class="detail-value">${job.hooks || 0}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Rails:</span>
+                                        <span class="detail-value">${job.rails || 0}</span>
+                                    </div>
+                                </div>
+
+                                <div class="detail-section">
+                                    <h3>⚙️ Configuration</h3>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Array Type:</span><br>
+                                        <span class="detail-value">${job.arrayConfig || 'N/A'}</span>
+                                    </div>
+                                </div>
+
+                                ${job.notes ? `
+                                    <div class="notes-section">
+                                        <h3>📝 Additional Notes</h3>
+                                        <div class="detail-value">${job.notes}</div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div class="timestamp">Submitted: ${timestamp}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Search functionality
+        document.getElementById('searchBox').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                displayJobs(allJobs);
+            } else {
+                const filteredJobs = allJobs.filter(job => {
+                    const jobNumber = job.jobNumber?.toLowerCase() || '';
+                    const postcode = job.customerDetails?.postcode?.toLowerCase() || '';
+                    return jobNumber.includes(searchTerm) || postcode.includes(searchTerm);
+                });
+                displayJobs(filteredJobs);
+            }
+        });
+
+        // Load jobs on page load
+        loadJobs();
+    </script>
+</body>
+</html>
