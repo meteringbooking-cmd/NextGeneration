@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Jobs - Solar Department</title>
+    <title>File Upload - Solar Department</title>
     <style>
         * {
             margin: 0;
@@ -66,7 +66,7 @@
             width: 60px;
             height: 60px;
             border-radius: 15px;
-            background: linear-gradient(135deg, #ff9a56, #ffd84d);
+            background: linear-gradient(135deg, #30cfd0, #330867);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -106,171 +106,279 @@
             color: #999;
         }
 
-        .jobs-container {
+        .content-area {
             background: white;
             border-radius: 20px;
             padding: 30px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
-        .loading {
+        .loading, .no-job, .select-job {
             text-align: center;
             padding: 40px;
             color: #666;
             font-size: 1.1rem;
         }
 
-        .no-jobs {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-            font-size: 1.1rem;
-        }
-
-        .job-card {
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .job-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
-        }
-
-        .job-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .job-info {
+            background: #f8f9fa;
             padding: 20px;
-            cursor: pointer;
-            background: #f8f9fa;
-            transition: background 0.3s ease;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: none;
         }
 
-        .job-header:hover {
-            background: #e9ecef;
+        .job-info.visible {
+            display: block;
         }
 
-        .job-summary {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .job-number {
-            font-weight: 700;
-            font-size: 1.2rem;
+        .job-info h2 {
             color: #667eea;
-        }
-
-        .job-postcode {
-            font-weight: 600;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .expand-icon {
+            margin-bottom: 15px;
             font-size: 1.5rem;
-            color: #667eea;
-            transition: transform 0.3s ease;
         }
 
-        .job-card.expanded .expand-icon {
-            transform: rotate(180deg);
-        }
-
-        .job-details {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-            background: white;
-        }
-
-        .job-card.expanded .job-details {
-            max-height: 1000px;
-        }
-
-        .job-details-content {
-            padding: 25px;
-            border-top: 2px solid #e0e0e0;
-        }
-
-        .details-grid {
+        .job-details-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
         }
 
-        .detail-section {
-            background: #f8f9fa;
-            padding: 15px;
+        .job-detail-item {
+            padding: 10px;
+            background: white;
             border-radius: 8px;
         }
 
-        .detail-section h3 {
-            color: #667eea;
-            font-size: 1rem;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .detail-item {
-            margin-bottom: 8px;
-            color: #333;
-        }
-
-        .detail-label {
+        .job-detail-label {
             font-weight: 600;
             color: #666;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
         }
 
-        .detail-value {
+        .job-detail-value {
             color: #333;
             font-size: 1rem;
         }
 
-        .notes-section {
-            grid-column: 1 / -1;
-            background: #fff9e6;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #ffd84d;
+        .upload-section {
+            display: none;
         }
 
-        .notes-section h3 {
-            color: #f59e0b;
+        .upload-section.visible {
+            display: block;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            margin-bottom: 30px;
+        }
+
+        .upload-area:hover {
+            background: #e9ecef;
+            border-color: #5568d3;
+        }
+
+        .upload-area.dragover {
+            background: #e7eaff;
+            border-color: #5568d3;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            color: #666;
             margin-bottom: 10px;
         }
 
-        .timestamp {
+        .upload-subtext {
+            font-size: 0.9rem;
             color: #999;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .file-list {
+            margin-top: 20px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .file-icon {
+            font-size: 2rem;
+        }
+
+        .file-details {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .file-size {
             font-size: 0.85rem;
-            margin-top: 15px;
-            text-align: right;
+            color: #666;
+        }
+
+        .upload-progress {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-remove {
+            background: #fee;
+            color: #e74c3c;
+        }
+
+        .btn-remove:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-upload {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            display: none;
+        }
+
+        .btn-upload.visible {
+            display: inline-block;
+        }
+
+        .btn-upload:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-upload:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .uploaded-files-section {
+            margin-top: 40px;
+            display: none;
+        }
+
+        .uploaded-files-section.visible {
+            display: block;
+        }
+
+        .uploaded-files-section h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .uploaded-file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #4caf50;
+        }
+
+        .success-icon {
+            color: #4caf50;
+            font-size: 1.5rem;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.visible {
+            display: block;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
         }
 
         @media (max-width: 768px) {
-            .job-summary {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
+            h1 {
+                font-size: 1.5rem;
             }
 
-            .details-grid {
+            .job-details-grid {
                 grid-template-columns: 1fr;
             }
 
-            h1 {
-                font-size: 1.5rem;
+            .upload-area {
+                padding: 30px 20px;
             }
         }
     </style>
@@ -281,28 +389,60 @@
 
         <div class="header">
             <div class="header-content">
-                <div class="header-icon">📋</div>
-                <h1>View Jobs</h1>
+                <div class="header-icon">📂</div>
+                <h1>File Upload</h1>
             </div>
             <div class="search-container">
-                <input type="text" class="search-box" id="searchBox" placeholder="Search by job number or postcode...">
+                <input type="text" class="search-box" id="searchBox" placeholder="Search by job number...">
                 <span class="search-icon">🔍</span>
             </div>
         </div>
 
-        <div class="jobs-container">
-            <div class="loading" id="loading">Loading jobs...</div>
-            <div class="no-jobs" id="noJobs" style="display: none;">No jobs found</div>
-            <div id="jobsList"></div>
+        <div class="content-area">
+            <div class="loading" id="loading" style="display: none;">Searching for job...</div>
+            <div class="select-job" id="selectJob">Enter a job number above to get started</div>
+            <div class="no-job" id="noJob" style="display: none;">No job found with that number</div>
+
+            <div class="alert alert-success" id="successAlert">
+                ✓ Files uploaded successfully!
+            </div>
+
+            <div class="alert alert-error" id="errorAlert">
+                ✗ Error uploading files. Please try again.
+            </div>
+
+            <div class="job-info" id="jobInfo">
+                <h2>Job Details</h2>
+                <div class="job-details-grid" id="jobDetailsGrid"></div>
+            </div>
+
+            <div class="upload-section" id="uploadSection">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Click to browse or drag and drop files here</div>
+                    <div class="upload-subtext">Support for images, PDFs, and documents</div>
+                </div>
+                <input type="file" id="fileInput" multiple>
+
+                <div class="file-list" id="fileList"></div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn btn-upload" id="uploadBtn">Upload Files</button>
+                </div>
+
+                <div class="uploaded-files-section" id="uploadedFilesSection">
+                    <h3>Previously Uploaded Files</h3>
+                    <div id="uploadedFilesList"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDpCu9bhDYMRSOEsuUKCiq2F-fC3zMFJ4Q",
             authDomain: "ngusolar-f527e.firebaseapp.com",
@@ -313,170 +453,300 @@
             measurementId: "G-R632HTYYKV"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const storage = getStorage(app);
 
-        let allJobs = [];
+        let currentJob = null;
+        let selectedFiles = [];
+        let searchTimeout = null;
 
-        // Load jobs from Firebase
-        async function loadJobs() {
-            const loading = document.getElementById('loading');
-            const noJobs = document.getElementById('noJobs');
-            const jobsList = document.getElementById('jobsList');
+        const elements = {
+            searchBox: document.getElementById('searchBox'),
+            loading: document.getElementById('loading'),
+            selectJob: document.getElementById('selectJob'),
+            noJob: document.getElementById('noJob'),
+            jobInfo: document.getElementById('jobInfo'),
+            jobDetailsGrid: document.getElementById('jobDetailsGrid'),
+            uploadSection: document.getElementById('uploadSection'),
+            uploadArea: document.getElementById('uploadArea'),
+            fileInput: document.getElementById('fileInput'),
+            fileList: document.getElementById('fileList'),
+            uploadBtn: document.getElementById('uploadBtn'),
+            successAlert: document.getElementById('successAlert'),
+            errorAlert: document.getElementById('errorAlert'),
+            uploadedFilesSection: document.getElementById('uploadedFilesSection'),
+            uploadedFilesList: document.getElementById('uploadedFilesList')
+        };
 
-            try {
-                const q = query(collection(db, "solarSurveys"), orderBy("submittedAt", "desc"));
-                const querySnapshot = await getDocs(q);
-                
-                allJobs = [];
-                querySnapshot.forEach((doc) => {
-                    allJobs.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
-                });
+        // Search for job
+        elements.searchBox.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            const searchTerm = e.target.value.trim();
 
-                loading.style.display = 'none';
-
-                if (allJobs.length === 0) {
-                    noJobs.style.display = 'block';
-                } else {
-                    displayJobs(allJobs);
-                }
-
-            } catch (error) {
-                console.error("Error loading jobs: ", error);
-                loading.innerHTML = `<div style="color: #e74c3c;">Error loading jobs: ${error.message}</div>`;
-            }
-        }
-
-        // Display jobs
-        function displayJobs(jobs) {
-            const jobsList = document.getElementById('jobsList');
-            const noJobs = document.getElementById('noJobs');
-
-            if (jobs.length === 0) {
-                jobsList.innerHTML = '';
-                noJobs.style.display = 'block';
+            if (searchTerm === '') {
+                resetView();
                 return;
             }
 
-            noJobs.style.display = 'none';
-            jobsList.innerHTML = jobs.map(job => createJobCard(job)).join('');
+            searchTimeout = setTimeout(() => searchJob(searchTerm), 500);
+        });
 
-            // Add click handlers
-            document.querySelectorAll('.job-header').forEach(header => {
-                header.addEventListener('click', function() {
-                    const card = this.closest('.job-card');
-                    card.classList.toggle('expanded');
-                });
-            });
+        async function searchJob(jobNumber) {
+            elements.loading.style.display = 'block';
+            elements.selectJob.style.display = 'none';
+            elements.noJob.style.display = 'none';
+            elements.jobInfo.classList.remove('visible');
+            elements.uploadSection.classList.remove('visible');
+
+            try {
+                const q = query(collection(db, "solarSurveys"), where("jobNumber", "==", jobNumber));
+                const querySnapshot = await getDocs(q);
+
+                elements.loading.style.display = 'none';
+
+                if (querySnapshot.empty) {
+                    elements.noJob.style.display = 'block';
+                    currentJob = null;
+                } else {
+                    querySnapshot.forEach((doc) => {
+                        currentJob = {
+                            id: doc.id,
+                            ...doc.data()
+                        };
+                    });
+                    displayJobInfo(currentJob);
+                    loadExistingFiles(currentJob);
+                }
+            } catch (error) {
+                console.error("Error searching job:", error);
+                elements.loading.style.display = 'none';
+                showError("Error searching for job");
+            }
         }
 
-        // Create job card HTML
-        function createJobCard(job) {
-            const timestamp = job.submittedAt ? new Date(job.submittedAt.toDate()).toLocaleString() : 'N/A';
-            
-            return `
-                <div class="job-card">
-                    <div class="job-header">
-                        <div class="job-summary">
-                            <div class="job-number">Job #${job.jobNumber}</div>
-                            <div class="job-postcode">📍 ${job.customerDetails?.postcode || 'N/A'}</div>
-                        </div>
-                        <div class="expand-icon">▼</div>
-                    </div>
-                    <div class="job-details">
-                        <div class="job-details-content">
-                            <div class="details-grid">
-                                <div class="detail-section">
-                                    <h3>👤 Customer Details</h3>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Name:</span><br>
-                                        <span class="detail-value">${job.customerDetails?.name || 'N/A'}</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Phone:</span><br>
-                                        <span class="detail-value">${job.customerDetails?.phone || 'N/A'}</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Email:</span><br>
-                                        <span class="detail-value">${job.customerDetails?.email || 'N/A'}</span>
-                                    </div>
-                                </div>
-
-                                <div class="detail-section">
-                                    <h3>📍 Address</h3>
-                                    <div class="detail-item">
-                                        <span class="detail-value">
-                                            ${job.customerDetails?.addressLine1 || 'N/A'}<br>
-                                            ${job.customerDetails?.townCity || 'N/A'}<br>
-                                            ${job.customerDetails?.postcode || 'N/A'}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div class="detail-section">
-                                    <h3>☀️ Equipment Details</h3>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Solar Panels:</span>
-                                        <span class="detail-value">${job.solarPanels || 0}</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Batteries:</span>
-                                        <span class="detail-value">${job.batteries || 0}</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Hooks:</span>
-                                        <span class="detail-value">${job.hooks || 0}</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Rails:</span>
-                                        <span class="detail-value">${job.rails || 0}</span>
-                                    </div>
-                                </div>
-
-                                <div class="detail-section">
-                                    <h3>⚙️ Configuration</h3>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Array Type:</span><br>
-                                        <span class="detail-value">${job.arrayConfig || 'N/A'}</span>
-                                    </div>
-                                </div>
-
-                                ${job.notes ? `
-                                    <div class="notes-section">
-                                        <h3>📝 Additional Notes</h3>
-                                        <div class="detail-value">${job.notes}</div>
-                                    </div>
-                                ` : ''}
-                            </div>
-                            <div class="timestamp">Submitted: ${timestamp}</div>
-                        </div>
-                    </div>
+        function displayJobInfo(job) {
+            elements.jobDetailsGrid.innerHTML = `
+                <div class="job-detail-item">
+                    <div class="job-detail-label">Job Number</div>
+                    <div class="job-detail-value">${job.jobNumber}</div>
+                </div>
+                <div class="job-detail-item">
+                    <div class="job-detail-label">Customer Name</div>
+                    <div class="job-detail-value">${job.customerDetails?.name || 'N/A'}</div>
+                </div>
+                <div class="job-detail-item">
+                    <div class="job-detail-label">Postcode</div>
+                    <div class="job-detail-value">${job.customerDetails?.postcode || 'N/A'}</div>
+                </div>
+                <div class="job-detail-item">
+                    <div class="job-detail-label">Phone</div>
+                    <div class="job-detail-value">${job.customerDetails?.phone || 'N/A'}</div>
                 </div>
             `;
+
+            elements.jobInfo.classList.add('visible');
+            elements.uploadSection.classList.add('visible');
         }
 
-        // Search functionality
-        document.getElementById('searchBox').addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase().trim();
-            
-            if (searchTerm === '') {
-                displayJobs(allJobs);
+        function loadExistingFiles(job) {
+            if (job.uploadedFiles && job.uploadedFiles.length > 0) {
+                elements.uploadedFilesSection.classList.add('visible');
+                elements.uploadedFilesList.innerHTML = job.uploadedFiles.map((file, index) => `
+                    <div class="uploaded-file-item">
+                        <div class="file-info">
+                            <span class="success-icon">✓</span>
+                            <div class="file-details">
+                                <div class="file-name">${file.name}</div>
+                                <div class="file-size">${formatDate(file.uploadedAt)}</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-remove" onclick="window.open('${file.url}', '_blank')">View</button>
+                    </div>
+                `).join('');
             } else {
-                const filteredJobs = allJobs.filter(job => {
-                    const jobNumber = job.jobNumber?.toLowerCase() || '';
-                    const postcode = job.customerDetails?.postcode?.toLowerCase() || '';
-                    return jobNumber.includes(searchTerm) || postcode.includes(searchTerm);
+                elements.uploadedFilesSection.classList.remove('visible');
+            }
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return 'N/A';
+            return new Date(timestamp).toLocaleString();
+        }
+
+        function resetView() {
+            elements.selectJob.style.display = 'block';
+            elements.loading.style.display = 'none';
+            elements.noJob.style.display = 'none';
+            elements.jobInfo.classList.remove('visible');
+            elements.uploadSection.classList.remove('visible');
+            currentJob = null;
+            selectedFiles = [];
+            elements.fileList.innerHTML = '';
+            elements.uploadBtn.classList.remove('visible');
+        }
+
+        // File upload handling
+        elements.uploadArea.addEventListener('click', () => elements.fileInput.click());
+
+        elements.fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        // Drag and drop
+        elements.uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            elements.uploadArea.classList.add('dragover');
+        });
+
+        elements.uploadArea.addEventListener('dragleave', () => {
+            elements.uploadArea.classList.remove('dragover');
+        });
+
+        elements.uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            elements.uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        function handleFiles(files) {
+            const newFiles = Array.from(files);
+            selectedFiles = [...selectedFiles, ...newFiles];
+            displayFileList();
+        }
+
+        function displayFileList() {
+            if (selectedFiles.length === 0) {
+                elements.fileList.innerHTML = '';
+                elements.uploadBtn.classList.remove('visible');
+                return;
+            }
+
+            elements.uploadBtn.classList.add('visible');
+            elements.fileList.innerHTML = selectedFiles.map((file, index) => `
+                <div class="file-item" data-index="${index}">
+                    <div class="file-info">
+                        <div class="file-icon">${getFileIcon(file.name)}</div>
+                        <div class="file-details">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-size">${formatFileSize(file.size)}</div>
+                            <div class="upload-progress" style="display: none;">
+                                <div class="progress-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <button class="btn btn-remove" onclick="removeFile(${index})">Remove</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.removeFile = function(index) {
+            selectedFiles.splice(index, 1);
+            displayFileList();
+        };
+
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(ext)) return '🖼️';
+            if (['pdf'].includes(ext)) return '📄';
+            if (['doc', 'docx'].includes(ext)) return '📝';
+            if (['xls', 'xlsx'].includes(ext)) return '📊';
+            return '📎';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // Upload files
+        elements.uploadBtn.addEventListener('click', async () => {
+            if (!currentJob || selectedFiles.length === 0) return;
+
+            elements.uploadBtn.disabled = true;
+            elements.uploadBtn.textContent = 'Uploading...';
+            hideAlerts();
+
+            try {
+                const uploadedFiles = [];
+
+                for (let i = 0; i < selectedFiles.length; i++) {
+                    const file = selectedFiles[i];
+                    const fileItem = document.querySelector(`[data-index="${i}"]`);
+                    const progressBar = fileItem.querySelector('.progress-bar');
+                    const progressContainer = fileItem.querySelector('.upload-progress');
+                    
+                    progressContainer.style.display = 'block';
+
+                    // Create unique filename
+                    const timestamp = Date.now();
+                    const filename = `${currentJob.jobNumber}_${timestamp}_${file.name}`;
+                    const storageRef = ref(storage, `job-files/${currentJob.jobNumber}/${filename}`);
+
+                    // Upload file
+                    await uploadBytes(storageRef, file);
+                    const downloadURL = await getDownloadURL(storageRef);
+
+                    uploadedFiles.push({
+                        name: file.name,
+                        url: downloadURL,
+                        uploadedAt: new Date().toISOString(),
+                        size: file.size,
+                        type: file.type
+                    });
+
+                    progressBar.style.width = '100%';
+                }
+
+                // Update Firestore document
+                const existingFiles = currentJob.uploadedFiles || [];
+                const jobRef = doc(db, "solarSurveys", currentJob.id);
+                await updateDoc(jobRef, {
+                    uploadedFiles: [...existingFiles, ...uploadedFiles]
                 });
-                displayJobs(filteredJobs);
+
+                // Update current job
+                currentJob.uploadedFiles = [...existingFiles, ...uploadedFiles];
+
+                showSuccess();
+                selectedFiles = [];
+                displayFileList();
+                loadExistingFiles(currentJob);
+                elements.fileInput.value = '';
+
+            } catch (error) {
+                console.error("Error uploading files:", error);
+                showError(error.message);
+            } finally {
+                elements.uploadBtn.disabled = false;
+                elements.uploadBtn.textContent = 'Upload Files';
             }
         });
 
-        // Load jobs on page load
-        loadJobs();
+        function showSuccess() {
+            elements.successAlert.classList.add('visible');
+            setTimeout(() => {
+                elements.successAlert.classList.remove('visible');
+            }, 5000);
+        }
+
+        function showError(message) {
+            elements.errorAlert.textContent = `✗ ${message}`;
+            elements.errorAlert.classList.add('visible');
+            setTimeout(() => {
+                elements.errorAlert.classList.remove('visible');
+            }, 5000);
+        }
+
+        function hideAlerts() {
+            elements.successAlert.classList.remove('visible');
+            elements.errorAlert.classList.remove('visible');
+        }
     </script>
 </body>
 </html>
