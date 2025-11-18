@@ -135,9 +135,19 @@
             transition: all 0.3s ease;
         }
 
+        .job-card.assigned {
+            border-color: #43e97b;
+            background: linear-gradient(to right, #f0fff4 0%, #ffffff 100%);
+        }
+
         .job-card:hover {
             border-color: #667eea;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .job-card.assigned:hover {
+            border-color: #43e97b;
+            box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3);
         }
 
         .job-header {
@@ -267,7 +277,7 @@
             flex-wrap: wrap;
         }
 
-        .surveyor-button {
+        .surveyor-button, .assign-team-button {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
@@ -280,9 +290,18 @@
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
-        .surveyor-button:hover {
+        .assign-team-button {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .surveyor-button:hover, .assign-team-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .assign-team-button:hover {
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
         }
 
         .surveyor-button:disabled {
@@ -435,6 +454,44 @@
             border-radius: 10px;
             margin-bottom: 15px;
             text-align: center;
+            font-weight: 600;
+        }
+
+        .team-select-section {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .team-select-section.active {
+            display: block;
+        }
+
+        .team-select-section select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .team-select-section select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .assigned-team-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
             font-weight: 600;
         }
 
@@ -732,6 +789,27 @@
         </div>
     </div>
 
+    <!-- Assign Team Modal -->
+    <div class="action-modal" id="assignTeamModal">
+        <div class="action-modal-content">
+            <div class="action-modal-header">Assign Team to Job</div>
+            <div id="assignSuccessBanner" class="success-banner" style="display: none;"></div>
+            
+            <div class="team-select-section active">
+                <div class="form-group-inline">
+                    <label>Select Team</label>
+                    <select id="teamSelect">
+                        <option value="">Loading teams...</option>
+                    </select>
+                </div>
+                <div class="modal-buttons">
+                    <button class="modal-button modal-button-secondary" onclick="closeAssignTeamModal()">Cancel</button>
+                    <button class="modal-button modal-button-primary" onclick="confirmTeamAssignment()">Assign Team</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -755,6 +833,8 @@
         let allJobs = [];
         let currentJob = null;
         let isAmending = false;
+        let allTeams = [];
+        let jobForTeamAssignment = null;
 
         // Load jobs from Firebase
         async function loadJobs() {
@@ -785,6 +865,38 @@
             } catch (error) {
                 console.error("Error loading jobs: ", error);
                 loading.innerHTML = `<div style="color: #e74c3c;">Error loading jobs: ${error.message}</div>`;
+            }
+        }
+
+        // Load teams from Firebase
+        async function loadTeams() {
+            try {
+                const q = query(collection(db, "solarTeams"), orderBy("createdAt", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                allTeams = [];
+                querySnapshot.forEach((doc) => {
+                    allTeams.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                updateTeamSelect();
+
+            } catch (error) {
+                console.error("Error loading teams: ", error);
+            }
+        }
+
+        // Update team select dropdown
+        function updateTeamSelect() {
+            const teamSelect = document.getElementById('teamSelect');
+            if (allTeams.length === 0) {
+                teamSelect.innerHTML = '<option value="">No teams available</option>';
+            } else {
+                teamSelect.innerHTML = '<option value="">Select a team...</option>' +
+                    allTeams.map(team => `<option value="${team.id}">${team.name}</option>`).join('');
             }
         }
 
@@ -844,7 +956,7 @@
             `;
             
             return `
-                <div class="job-card">
+                <div class="job-card ${job.assignedTeam ? 'assigned' : ''}">
                     <div class="job-header">
                         <div class="job-summary">
                             <div class="job-number">Job #${job.jobNumber}</div>
@@ -852,6 +964,11 @@
                             ${job.installationDate ? `
                                 <div class="job-postcode" style="color: #43e97b;">
                                     📅 ${new Date(job.installationDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                </div>
+                            ` : ''}
+                            ${job.assignedTeam ? `
+                                <div class="assigned-team-badge">
+                                    👥 Team ${job.assignedTeam}
                                 </div>
                             ` : ''}
                         </div>
@@ -949,6 +1066,9 @@
                                         Surveyor Amend/Confirm
                                     </button>
                                 `}
+                                <button class="assign-team-button" onclick="openAssignTeamModal('${job.id}')">
+                                    ${job.assignedTeam ? '👥 Change Team' : '👥 Assign Team'}
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -1232,6 +1352,74 @@
             isAmending = false;
         };
 
+        // Open Assign Team Modal
+        window.openAssignTeamModal = function(jobId) {
+            jobForTeamAssignment = allJobs.find(j => j.id === jobId);
+            if (!jobForTeamAssignment) return;
+
+            const modal = document.getElementById('assignTeamModal');
+            const successBanner = document.getElementById('assignSuccessBanner');
+            const teamSelect = document.getElementById('teamSelect');
+
+            // Pre-select current team if assigned
+            if (jobForTeamAssignment.assignedTeam) {
+                const team = allTeams.find(t => t.name === jobForTeamAssignment.assignedTeam);
+                if (team) {
+                    teamSelect.value = team.id;
+                }
+            } else {
+                teamSelect.value = '';
+            }
+
+            successBanner.style.display = 'none';
+            modal.classList.add('active');
+        };
+
+        // Close Assign Team Modal
+        window.closeAssignTeamModal = function() {
+            document.getElementById('assignTeamModal').classList.remove('active');
+            jobForTeamAssignment = null;
+        };
+
+        // Confirm Team Assignment
+        window.confirmTeamAssignment = async function() {
+            const teamSelect = document.getElementById('teamSelect');
+            const teamId = teamSelect.value;
+
+            if (!teamId) {
+                alert("Please select a team");
+                return;
+            }
+
+            const selectedTeam = allTeams.find(t => t.id === teamId);
+            if (!selectedTeam) return;
+
+            try {
+                // Update Firebase
+                const jobRef = doc(db, "solarSurveys", jobForTeamAssignment.id);
+                await updateDoc(jobRef, {
+                    assignedTeam: selectedTeam.name,
+                    assignedTeamId: selectedTeam.id,
+                    assignedAt: new Date().toISOString()
+                });
+
+                // Show success message
+                const successBanner = document.getElementById('assignSuccessBanner');
+                successBanner.textContent = `✓ Team ${selectedTeam.name} assigned successfully!`;
+                successBanner.style.display = 'block';
+
+                // Reload jobs to reflect changes
+                setTimeout(() => {
+                    closeAssignTeamModal();
+                    loadJobs();
+                }, 1500);
+
+            } catch (error) {
+                console.error("Error assigning team: ", error);
+                alert("Error assigning team: " + error.message);
+            }
+        };
+
         // Search functionality
         document.getElementById('searchBox').addEventListener('input', function(e) {
             const searchTerm = e.target.value.toLowerCase().trim();
@@ -1250,6 +1438,7 @@
 
         // Load jobs on page load
         loadJobs();
+        loadTeams();
     </script>
 </body>
 </html>
