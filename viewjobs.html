@@ -644,7 +644,7 @@
 </head>
 <body>
     <div class="container">
-        <a href="solar.html" class="back-button">← Back to Solar</a>
+        <a href="solar-department.html" class="back-button">← Back to Solar Department</a>
 
         <div class="header">
             <div class="header-content">
@@ -1163,34 +1163,12 @@
 
         // Send Confirmation Email
         async function sendConfirmationEmail(job, installationDate) {
-            const emailData = {
-                to: "barry.dixon@next-gen.uk",
-                subject: `Solar Installation Confirmed - Job #${job.jobNumber}`,
-                body: `
-Solar Installation Confirmed
-
-Job Number: ${job.jobNumber}
-
-Customer Address:
-${job.customerDetails?.addressLine1 || 'N/A'}
-${job.customerDetails?.townCity || 'N/A'}
-${job.customerDetails?.postcode || 'N/A'}
-
-Equipment Details:
-- Solar Panels: ${job.solarPanels || 0}
-- Batteries: ${job.batteries || 0}
-- Hooks: ${job.hooks || 0}
-- Rails: ${job.rails || 0}
-- Array Configuration: ${job.arrayConfig || 'N/A'}
-
-Installation Date: ${new Date(installationDate).toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-
-Customer Contact:
-Name: ${job.customerDetails?.name || 'N/A'}
-Phone: ${job.customerDetails?.phone || 'N/A'}
-Email: ${job.customerDetails?.email || 'N/A'}
-                `.trim()
-            };
+            const formattedDate = new Date(installationDate).toLocaleDateString('en-GB', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
 
             const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
                 method: 'POST',
@@ -1199,20 +1177,33 @@ Email: ${job.customerDetails?.email || 'N/A'}
                 },
                 body: JSON.stringify({
                     service_id: 'service_2qhpxbu',
-                    template_id: 'template_r7zu0zr',
+                    template_id: 'template_cex3tj9',
                     user_id: 'ziLnha91scpGjFABh',
                     template_params: {
-                        to_email: 'barry.dixon@next-gen.uk',
-                        subject: emailData.subject,
-                        message: emailData.body,
-                        job_number: job.jobNumber
+                        job_number: job.jobNumber,
+                        customer_name: job.customerDetails?.name || 'N/A',
+                        customer_phone: job.customerDetails?.phone || 'N/A',
+                        customer_email: job.customerDetails?.email || 'N/A',
+                        address_line1: job.customerDetails?.addressLine1 || 'N/A',
+                        town_city: job.customerDetails?.townCity || 'N/A',
+                        postcode: job.customerDetails?.postcode || 'N/A',
+                        solar_panels: job.solarPanels || 0,
+                        batteries: job.batteries || 0,
+                        hooks: job.hooks || 0,
+                        rails: job.rails || 0,
+                        array_config: job.arrayConfig || 'N/A',
+                        installation_date: formattedDate,
+                        notes: job.notes || 'None'
                     }
                 })
             });
 
             if (!response.ok) {
-                throw new Error('Failed to send email');
+                const errorText = await response.text();
+                throw new Error(`Failed to send email: ${errorText}`);
             }
+
+            return await response.text();
         }
 
         // Close Action Modal
