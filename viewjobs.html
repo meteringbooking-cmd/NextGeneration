@@ -644,7 +644,7 @@
 </head>
 <body>
     <div class="container">
-        <a href="solar.html" class="back-button">← Back to Solar Department</a>
+        <a href="solar.html" class="back-button">← Back to Solar</a>
 
         <div class="header">
             <div class="header-content">
@@ -908,10 +908,6 @@
                                         <span class="detail-label">Array Type:</span><br>
                                         <span class="detail-value">${job.arrayConfig || 'N/A'}</span>
                                     </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Job Timeframe:</span><br>
-                                        <span class="detail-value">${job.projectedJobTime || 'N/A'}</span>
-                                    </div>
                                 </div>
 
                                 ${job.notes ? `
@@ -925,9 +921,15 @@
                             </div>
                             <div class="timestamp">Submitted: ${timestamp}</div>
                             <div class="action-buttons">
-                                <button class="surveyor-button" onclick="openSurveyorAction('${job.id}')">
-                                    Surveyor Amend/Confirm
-                                </button>
+                                ${job.installationDate ? `
+                                    <button class="surveyor-button" style="background: linear-gradient(135deg, #43e97b, #38f9d7);" disabled>
+                                        ✓ Installation Confirmed
+                                    </button>
+                                ` : `
+                                    <button class="surveyor-button" onclick="openSurveyorAction('${job.id}')">
+                                        Surveyor Amend/Confirm
+                                    </button>
+                                `}
                             </div>
                         </div>
                     </div>
