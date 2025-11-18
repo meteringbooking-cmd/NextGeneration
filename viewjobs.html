@@ -203,7 +203,7 @@
         }
 
         .job-card.expanded .job-details {
-            max-height: 1000px;
+            max-height: 5000px;
         }
 
         .job-details-content {
@@ -648,12 +648,32 @@
             max-width: 100%;
             max-height: calc(90vh - 80px);
             display: block;
+            width: auto;
+            height: auto;
+            object-fit: contain;
         }
 
         .modal-body iframe {
             width: 100%;
             height: calc(90vh - 80px);
             border: none;
+        }
+
+        @media (max-width: 768px) {
+            .modal-body {
+                max-height: calc(95vh - 60px);
+            }
+
+            .modal-body img {
+                max-height: calc(95vh - 60px);
+                width: 100%;
+                height: auto;
+                object-fit: contain;
+            }
+
+            .modal-body iframe {
+                height: calc(95vh - 60px);
+            }
         }
 
         .download-link {
@@ -695,6 +715,23 @@
             .modal-content {
                 max-width: 95%;
                 max-height: 95%;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .surveyor-button, .assign-team-button {
+                width: 100%;
+            }
+
+            .assigned-team-badge {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .job-card.expanded .job-details {
+                max-height: none;
             }
         }
     </style>
@@ -1112,10 +1149,21 @@
             modalBody.innerHTML = '';
 
             if (imageExts.includes(ext) || fileType.startsWith('image/')) {
-                // Display image
+                // Display image with zoom capability
                 const img = document.createElement('img');
                 img.src = url;
                 img.alt = filename;
+                img.style.cursor = 'zoom-in';
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+                
+                // Allow pinch-to-zoom on mobile
+                img.addEventListener('touchstart', function(e) {
+                    if (e.touches.length > 1) {
+                        e.preventDefault();
+                    }
+                });
+                
                 modalBody.appendChild(img);
             } else if (pdfExts.includes(ext) || fileType === 'application/pdf') {
                 // Display PDF in iframe
@@ -1135,17 +1183,21 @@
             }
 
             modal.classList.add('active');
+            // Prevent body scroll on mobile when modal is open
+            document.body.style.overflow = 'hidden';
         };
 
         modalClose.addEventListener('click', () => {
             modal.classList.remove('active');
             modalBody.innerHTML = '';
+            document.body.style.overflow = '';
         });
 
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 modal.classList.remove('active');
                 modalBody.innerHTML = '';
+                document.body.style.overflow = '';
             }
         });
 
@@ -1154,6 +1206,7 @@
             if (e.key === 'Escape' && modal.classList.contains('active')) {
                 modal.classList.remove('active');
                 modalBody.innerHTML = '';
+                document.body.style.overflow = '';
             }
         });
 
