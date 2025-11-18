@@ -644,7 +644,7 @@
 </head>
 <body>
     <div class="container">
-        <a href="solar-department.html" class="back-button">← Back to Solar Department</a>
+        <a href="solar.html" class="back-button">← Back to Solar</a>
 
         <div class="header">
             <div class="header-content">
@@ -849,6 +849,11 @@
                         <div class="job-summary">
                             <div class="job-number">Job #${job.jobNumber}</div>
                             <div class="job-postcode">📍 ${job.customerDetails?.postcode || 'N/A'}</div>
+                            ${job.installationDate ? `
+                                <div class="job-postcode" style="color: #43e97b;">
+                                    📅 ${new Date(job.installationDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                </div>
+                            ` : ''}
                         </div>
                         <div class="expand-icon">▼</div>
                     </div>
@@ -908,6 +913,20 @@
                                         <span class="detail-label">Array Type:</span><br>
                                         <span class="detail-value">${job.arrayConfig || 'N/A'}</span>
                                     </div>
+                                    ${job.projectedJobTime ? `
+                                    <div class="detail-item">
+                                        <span class="detail-label">Job Timeframe:</span><br>
+                                        <span class="detail-value">${job.projectedJobTime}</span>
+                                    </div>
+                                    ` : ''}
+                                    ${job.installationDate ? `
+                                    <div class="detail-item">
+                                        <span class="detail-label">Installation Date:</span><br>
+                                        <span class="detail-value" style="color: #43e97b; font-weight: 700;">
+                                            📅 ${new Date(job.installationDate).toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                        </span>
+                                    </div>
+                                    ` : ''}
                                 </div>
 
                                 ${job.notes ? `
