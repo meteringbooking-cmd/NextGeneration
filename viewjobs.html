@@ -1403,9 +1403,12 @@
                     assignedAt: new Date().toISOString()
                 });
 
+                // Send email to team
+                await sendTeamAssignmentEmail(jobForTeamAssignment, selectedTeam);
+
                 // Show success message
                 const successBanner = document.getElementById('assignSuccessBanner');
-                successBanner.textContent = `✓ Team ${selectedTeam.name} assigned successfully!`;
+                successBanner.textContent = `✓ Team ${selectedTeam.name} assigned and notified successfully!`;
                 successBanner.style.display = 'block';
 
                 // Reload jobs to reflect changes
@@ -1419,6 +1422,51 @@
                 alert("Error assigning team: " + error.message);
             }
         };
+
+        // Send Team Assignment Email
+        async function sendTeamAssignmentEmail(job, team) {
+            const formattedInstallDate = job.installationDate 
+                ? new Date(job.installationDate).toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+                : 'Not yet scheduled';
+
+            const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    service_id: 'service_2qhpxbu',
+                    template_id: 'template_3vgdyq5',
+                    user_id: 'ziLnha91scpGjFABh',
+                    template_params: {
+                        team_name: team.name,
+                        team_email: team.email,
+                        job_number: job.jobNumber,
+                        customer_name: job.customerDetails?.name || 'N/A',
+                        customer_phone: job.customerDetails?.phone || 'N/A',
+                        customer_email: job.customerDetails?.email || 'N/A',
+                        address_line1: job.customerDetails?.addressLine1 || 'N/A',
+                        town_city: job.customerDetails?.townCity || 'N/A',
+                        postcode: job.customerDetails?.postcode || 'N/A',
+                        solar_panels: job.solarPanels || 0,
+                        batteries: job.batteries || 0,
+                        hooks: job.hooks || 0,
+                        rails: job.rails || 0,
+                        array_config: job.arrayConfig || 'N/A',
+                        installation_date: formattedInstallDate,
+                        notes: job.notes || 'None',
+                        projected_job_time: job.projectedJobTime || 'N/A'
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to send email: ${errorText}`);
+            }
+
+            return await response.text();
+        }
 
         // Search functionality
         document.getElementById('searchBox').addEventListener('input', function(e) {
