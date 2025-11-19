@@ -185,7 +185,7 @@
 
         .job-summary {
             display: flex;
-            gap: 30px;
+            gap: 20px;
             align-items: center;
             flex-wrap: wrap;
         }
@@ -254,6 +254,37 @@
             border-top: 2px solid #e0e0e0;
         }
 
+        .completion-info {
+            background: linear-gradient(135deg, #fff9e6, #ffffff);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ffd84d;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .completion-info-icon {
+            font-size: 2rem;
+        }
+
+        .completion-info-text {
+            flex: 1;
+        }
+
+        .completion-info-label {
+            font-weight: 600;
+            color: #f59e0b;
+            font-size: 0.9rem;
+        }
+
+        .completion-info-date {
+            color: #333;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
         .details-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -304,44 +335,6 @@
             margin-bottom: 10px;
         }
 
-        .timestamp {
-            color: #999;
-            font-size: 0.85rem;
-            margin-top: 15px;
-            text-align: right;
-        }
-
-        .completion-info {
-            background: linear-gradient(135deg, #fff9e6, #ffffff);
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #ffd84d;
-            margin-top: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .completion-info-icon {
-            font-size: 2rem;
-        }
-
-        .completion-info-text {
-            flex: 1;
-        }
-
-        .completion-info-label {
-            font-weight: 600;
-            color: #f59e0b;
-            font-size: 0.9rem;
-        }
-
-        .completion-info-date {
-            color: #333;
-            font-size: 1rem;
-            font-weight: 700;
-        }
-
         .files-section {
             grid-column: 1 / -1;
             background: #f0f7ff;
@@ -363,7 +356,6 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 15px;
-            margin-top: 15px;
         }
 
         .file-preview-card {
@@ -408,7 +400,13 @@
             padding: 10px;
         }
 
-        /* Modal Styles */
+        .timestamp {
+            color: #999;
+            font-size: 0.85rem;
+            margin-top: 15px;
+            text-align: right;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -418,18 +416,12 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.9);
-            animation: fadeIn 0.3s ease;
         }
 
         .modal.active {
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
         }
 
         .modal-content {
@@ -495,9 +487,6 @@
             max-width: 100%;
             max-height: calc(90vh - 80px);
             display: block;
-            width: auto;
-            height: auto;
-            object-fit: contain;
         }
 
         .modal-body iframe {
@@ -542,37 +531,12 @@
                 grid-template-columns: 1fr;
             }
 
-            .modal-content {
-                max-width: 95%;
-                max-height: 95%;
-            }
-
             .stats-container {
                 grid-template-columns: 1fr;
             }
 
-            .team-badge, .completed-badge {
-                width: 100%;
-                justify-content: center;
-            }
-
             .job-card.expanded .job-details {
                 max-height: none;
-            }
-
-            .modal-body {
-                max-height: calc(95vh - 60px);
-            }
-
-            .modal-body img {
-                max-height: calc(95vh - 60px);
-                width: 100%;
-                height: auto;
-                object-fit: contain;
-            }
-
-            .modal-body iframe {
-                height: calc(95vh - 60px);
             }
         }
     </style>
@@ -587,7 +551,7 @@
                 <h1>Historic Jobs (Completed)</h1>
             </div>
             <div class="search-container">
-                <input type="text" class="search-box" id="searchBox" placeholder="Search by job number or postcode...">
+                <input type="text" class="search-box" id="searchBox" placeholder="Search by job number, postcode or team...">
                 <span class="search-icon">🔍</span>
             </div>
         </div>
@@ -595,26 +559,27 @@
         <div class="stats-container">
             <div class="stat-card">
                 <div class="stat-number" id="totalCompleted">0</div>
-                <div class="stat-label">Total Completed Jobs</div>
+                <div class="stat-label">Total Completed</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number" id="thisMonth">0</div>
-                <div class="stat-label">Completed This Month</div>
+                <div class="stat-label">This Month</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number" id="thisYear">0</div>
-                <div class="stat-label">Completed This Year</div>
+                <div class="stat-label">This Year</div>
             </div>
         </div>
 
         <div class="jobs-container">
             <div class="loading" id="loading">Loading completed jobs...</div>
-            <div class="no-jobs" id="noJobs" style="display: none;">No completed jobs found</div>
+            <div class="no-jobs" id="noJobs" style="display: none;">
+                No completed jobs found. Mark jobs as completed in View Jobs to see them here.
+            </div>
             <div id="jobsList"></div>
         </div>
     </div>
 
-    <!-- File Viewer Modal -->
     <div class="modal" id="fileModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -625,12 +590,10 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDpCu9bhDYMRSOEsuUKCiq2F-fC3zMFJ4Q",
             authDomain: "ngusolar-f527e.firebaseapp.com",
@@ -641,41 +604,26 @@
             measurementId: "G-R632HTYYKV"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
+        
         let allCompletedJobs = [];
+        let allJobs = [];
 
-        // Load completed jobs from Firebase
-        async function loadCompletedJobs() {
+        async function loadJobs() {
             const loading = document.getElementById('loading');
             const noJobs = document.getElementById('noJobs');
-            const jobsList = document.getElementById('jobsList');
 
             try {
-                console.log("Starting to load jobs...");
-                // Get all jobs first, then filter for completed ones
-                const querySnapshot = await getDocs(collection(db, "solarSurveys"));
+                const snapshot = await getDocs(collection(db, "solarSurveys"));
                 
-                console.log("Total jobs loaded:", querySnapshot.size);
-                
-                allCompletedJobs = [];
-                querySnapshot.forEach((doc) => {
-                    const jobData = doc.data();
-                    console.log("Job:", doc.id, "Status:", jobData.jobStatus);
-                    // Only include jobs with completed status
-                    if (jobData.jobStatus === 'completed') {
-                        allCompletedJobs.push({
-                            id: doc.id,
-                            ...jobData
-                        });
-                    }
+                allJobs = [];
+                snapshot.forEach((doc) => {
+                    allJobs.push({ id: doc.id, ...doc.data() });
                 });
 
-                console.log("Completed jobs found:", allCompletedJobs.length);
-
-                // Sort by completion date (most recent first)
+                allCompletedJobs = allJobs.filter(job => job.jobStatus === 'completed');
+                
                 allCompletedJobs.sort((a, b) => {
                     const dateA = a.lastStatusUpdate ? new Date(a.lastStatusUpdate) : new Date(0);
                     const dateB = b.lastStatusUpdate ? new Date(b.lastStatusUpdate) : new Date(0);
@@ -686,42 +634,33 @@
 
                 if (allCompletedJobs.length === 0) {
                     noJobs.style.display = 'block';
-                    noJobs.textContent = 'No completed jobs found. Jobs need to be marked as "completed" in View Jobs.';
                 } else {
                     displayJobs(allCompletedJobs);
                     updateStats(allCompletedJobs);
                 }
-
             } catch (error) {
-                console.error("Error loading jobs: ", error);
-                loading.innerHTML = `<div style="color: #e74c3c;">Error loading jobs: ${error.message}<br>Check console for details.</div>`;
+                loading.innerHTML = '<div style="color: #e74c3c;">Error: ' + error.message + '</div>';
             }
         }
 
-        // Update statistics
         function updateStats(jobs) {
             const now = new Date();
-            const currentMonth = now.getMonth();
-            const currentYear = now.getFullYear();
-
             document.getElementById('totalCompleted').textContent = jobs.length;
 
             const thisMonth = jobs.filter(job => {
                 if (!job.lastStatusUpdate) return false;
-                const jobDate = new Date(job.lastStatusUpdate);
-                return jobDate.getMonth() === currentMonth && jobDate.getFullYear() === currentYear;
+                const d = new Date(job.lastStatusUpdate);
+                return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
             }).length;
             document.getElementById('thisMonth').textContent = thisMonth;
 
             const thisYear = jobs.filter(job => {
                 if (!job.lastStatusUpdate) return false;
-                const jobDate = new Date(job.lastStatusUpdate);
-                return jobDate.getFullYear() === currentYear;
+                return new Date(job.lastStatusUpdate).getFullYear() === now.getFullYear();
             }).length;
             document.getElementById('thisYear').textContent = thisYear;
         }
 
-        // Display jobs
         function displayJobs(jobs) {
             const jobsList = document.getElementById('jobsList');
             const noJobs = document.getElementById('noJobs');
@@ -735,52 +674,38 @@
             noJobs.style.display = 'none';
             jobsList.innerHTML = jobs.map(job => createJobCard(job)).join('');
 
-            // Add click handlers
             document.querySelectorAll('.job-header').forEach(header => {
                 header.addEventListener('click', function() {
-                    const card = this.closest('.job-card');
-                    card.classList.toggle('expanded');
+                    this.closest('.job-card').classList.toggle('expanded');
                 });
             });
         }
 
-        // Create job card HTML
         function createJobCard(job) {
-            const timestamp = job.submittedAt ? new Date(job.submittedAt.toDate()).toLocaleString() : 'N/A';
-            const completedDate = job.lastStatusUpdate ? new Date(job.lastStatusUpdate).toLocaleDateString('en-GB', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+            const submitted = job.submittedAt ? new Date(job.submittedAt.toDate()).toLocaleString() : 'N/A';
+            const completed = job.lastStatusUpdate ? new Date(job.lastStatusUpdate).toLocaleDateString('en-GB', { 
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
             }) : 'N/A';
             
-            // Sort uploaded files by date (most recent first)
-            const uploadedFiles = job.uploadedFiles || [];
-            const sortedFiles = [...uploadedFiles].sort((a, b) => {
-                const dateA = new Date(a.uploadedAt || 0);
-                const dateB = new Date(b.uploadedAt || 0);
-                return dateB - dateA;
+            const files = job.uploadedFiles || [];
+            const sortedFiles = [...files].sort((a, b) => {
+                return new Date(b.uploadedAt || 0) - new Date(a.uploadedAt || 0);
             });
 
             const filesHTML = sortedFiles.length > 0 ? `
                 <div class="files-section">
-                    <h3>📎 Uploaded Files (${sortedFiles.length})</h3>
+                    <h3>📎 Files (${sortedFiles.length})</h3>
                     <div class="files-grid">
-                        ${sortedFiles.map((file) => `
-                            <div class="file-preview-card" onclick="openFileModal('${file.url}', '${file.name.replace(/'/g, "\\'")}', '${file.type || ''}')">
-                                <div class="file-preview-icon">${getFileIcon(file.name)}</div>
-                                <div class="file-preview-name" title="${file.name}">${file.name}</div>
-                                <div class="file-preview-date">${formatFileDate(file.uploadedAt)}</div>
+                        ${sortedFiles.map(f => `
+                            <div class="file-preview-card" onclick="openFile('${f.url}', '${f.name.replace(/'/g, "\\'")}', '${f.type || ''}')">
+                                <div class="file-preview-icon">${getIcon(f.name)}</div>
+                                <div class="file-preview-name">${f.name}</div>
+                                <div class="file-preview-date">${formatDate(f.uploadedAt)}</div>
                             </div>
                         `).join('')}
                     </div>
                 </div>
-            ` : `
-                <div class="files-section">
-                    <h3>📎 Uploaded Files</h3>
-                    <div class="no-files">No files uploaded</div>
-                </div>
-            `;
+            ` : '<div class="files-section"><h3>📎 Files</h3><div class="no-files">No files</div></div>';
             
             return `
                 <div class="job-card">
@@ -788,19 +713,9 @@
                         <div class="job-summary">
                             <div class="job-number">Job #${job.jobNumber}</div>
                             <div class="job-postcode">📍 ${job.customerDetails?.postcode || 'N/A'}</div>
-                            ${job.installationDate ? `
-                                <div class="job-postcode" style="color: #43e97b;">
-                                    📅 ${new Date(job.installationDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                </div>
-                            ` : ''}
-                            ${job.assignedTeam ? `
-                                <div class="team-badge">
-                                    👥 Team ${job.assignedTeam}
-                                </div>
-                            ` : ''}
-                            <div class="completed-badge">
-                                ✓ Completed
-                            </div>
+                            ${job.installationDate ? `<div class="job-postcode" style="color:#43e97b;">📅 ${new Date(job.installationDate).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})}</div>` : ''}
+                            ${job.assignedTeam ? `<div class="team-badge">👥 Team ${job.assignedTeam}</div>` : ''}
+                            <div class="completed-badge">✓ Completed</div>
                         </div>
                         <div class="expand-icon">▼</div>
                     </div>
@@ -810,102 +725,127 @@
                                 <div class="completion-info-icon">✓</div>
                                 <div class="completion-info-text">
                                     <div class="completion-info-label">Completed On</div>
-                                    <div class="completion-info-date">${completedDate}</div>
+                                    <div class="completion-info-date">${completed}</div>
                                 </div>
                             </div>
                             <div class="details-grid">
                                 <div class="detail-section">
-                                    <h3>👤 Customer Details</h3>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Name:</span><br>
-                                        <span class="detail-value">${job.customerDetails?.name || 'N/A'}</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Phone:</span><br>
-                                        <span class="detail-value">${job.customerDetails?.phone || 'N/A'}</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Email:</span><br>
-                                        <span class="detail-value">${job.customerDetails?.email || 'N/A'}</span>
-                                    </div>
+                                    <h3>👤 Customer</h3>
+                                    <div class="detail-item"><span class="detail-label">Name:</span><br><span class="detail-value">${job.customerDetails?.name || 'N/A'}</span></div>
+                                    <div class="detail-item"><span class="detail-label">Phone:</span><br><span class="detail-value">${job.customerDetails?.phone || 'N/A'}</span></div>
+                                    <div class="detail-item"><span class="detail-label">Email:</span><br><span class="detail-value">${job.customerDetails?.email || 'N/A'}</span></div>
                                 </div>
-
                                 <div class="detail-section">
                                     <h3>📍 Address</h3>
-                                    <div class="detail-item">
-                                        <span class="detail-value">
-                                            ${job.customerDetails?.addressLine1 || 'N/A'}<br>
-                                            ${job.customerDetails?.townCity || 'N/A'}<br>
-                                            ${job.customerDetails?.postcode || 'N/A'}
-                                        </span>
-                                    </div>
+                                    <div class="detail-value">${job.customerDetails?.addressLine1 || 'N/A'}<br>${job.customerDetails?.townCity || 'N/A'}<br>${job.customerDetails?.postcode || 'N/A'}</div>
                                 </div>
-
                                 <div class="detail-section">
-                                    <h3>☀️ Equipment Details</h3>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Solar Panels:</span>
-                                        <span class="detail-value">${job.solarPanels || 0}</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Batteries:</span>
-                                        <span class="detail-value">${job.batteries || 0}</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Hooks:</span>
-                                        <span class="detail-value">${job.hooks || 0}</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Rails:</span>
-                                        <span class="detail-value">${job.rails || 0}</span>
-                                    </div>
+                                    <h3>☀️ Equipment</h3>
+                                    <div class="detail-item"><span class="detail-label">Solar Panels:</span> ${job.solarPanels || 0}</div>
+                                    <div class="detail-item"><span class="detail-label">Batteries:</span> ${job.batteries || 0}</div>
+                                    <div class="detail-item"><span class="detail-label">Hooks:</span> ${job.hooks || 0}</div>
+                                    <div class="detail-item"><span class="detail-label">Rails:</span> ${job.rails || 0}</div>
                                 </div>
-
                                 <div class="detail-section">
                                     <h3>⚙️ Configuration</h3>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Array Type:</span><br>
-                                        <span class="detail-value">${job.arrayConfig || 'N/A'}</span>
-                                    </div>
-                                    ${job.projectedJobTime ? `
-                                    <div class="detail-item">
-                                        <span class="detail-label">Job Timeframe:</span><br>
-                                        <span class="detail-value">${job.projectedJobTime}</span>
-                                    </div>
-                                    ` : ''}
-                                    ${job.installationDate ? `
-                                    <div class="detail-item">
-                                        <span class="detail-label">Installation Date:</span><br>
-                                        <span class="detail-value" style="color: #43e97b; font-weight: 700;">
-                                            📅 ${new Date(job.installationDate).toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                                        </span>
-                                    </div>
-                                    ` : ''}
+                                    <div class="detail-item"><span class="detail-label">Array Type:</span><br><span class="detail-value">${job.arrayConfig || 'N/A'}</span></div>
+                                    ${job.projectedJobTime ? `<div class="detail-item"><span class="detail-label">Timeframe:</span><br><span class="detail-value">${job.projectedJobTime}</span></div>` : ''}
                                 </div>
-
-                                ${job.notes ? `
-                                    <div class="notes-section">
-                                        <h3>📝 Additional Notes</h3>
-                                        <div class="detail-value">${job.notes}</div>
-                                    </div>
-                                ` : ''}
-
+                                ${job.notes ? `<div class="notes-section"><h3>📝 Notes</h3><div class="detail-value">${job.notes}</div></div>` : ''}
                                 ${filesHTML}
                             </div>
-                            <div class="timestamp">Submitted: ${timestamp}</div>
+                            <div class="timestamp">Submitted: ${submitted}</div>
                         </div>
                     </div>
                 </div>
             `;
         }
 
-        // Helper function to get file icon
-        function getFileIcon(filename) {
-            const ext = filename.split('.').pop().toLowerCase();
-            if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext)) return '🖼️';
-            if (['pdf'].includes(ext)) return '📄';
-            if (['doc', 'docx'].includes(ext)) return '📝';
-            if (['xls', 'xlsx'].includes(ext)) return '📊';
-            if (['zip', 'rar'].includes(ext)) return '📦';
-            if (['mp4', 'mov', 'avi'].includes(ext)) return '🎥';
-            return '
+        function getIcon(name) {
+            const ext = name.split('.').pop().toLowerCase();
+            if (['jpg','jpeg','png','gif','bmp','webp'].includes(ext)) return '🖼️';
+            if (ext === 'pdf') return '📄';
+            if (['doc','docx'].includes(ext)) return '📝';
+            if (['xls','xlsx'].includes(ext)) return '📊';
+            if (['zip','rar'].includes(ext)) return '📦';
+            if (['mp4','mov','avi'].includes(ext)) return '🎥';
+            return '📎';
+        }
+
+        function formatDate(d) {
+            if (!d) return 'N/A';
+            const date = new Date(d);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+        }
+
+        const modal = document.getElementById('fileModal');
+        const modalClose = document.getElementById('modalClose');
+        const modalBody = document.getElementById('modalBody');
+        const modalTitle = document.getElementById('modalTitle');
+
+        window.openFile = function(url, name, type) {
+            modalTitle.textContent = name;
+            const ext = name.split('.').pop().toLowerCase();
+            modalBody.innerHTML = '';
+
+            if (['jpg','jpeg','png','gif','bmp','webp'].includes(ext) || type.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = name;
+                modalBody.appendChild(img);
+            } else if (ext === 'pdf' || type === 'application/pdf') {
+                const iframe = document.createElement('iframe');
+                iframe.src = url;
+                modalBody.appendChild(iframe);
+            } else {
+                modalBody.innerHTML = `<div style="text-align:center;padding:40px;"><div style="font-size:4rem;margin-bottom:20px;">${getIcon(name)}</div><h3 style="color:#333;margin-bottom:10px;">${name}</h3><p style="color:#666;margin-bottom:20px;">Cannot preview this file type</p><a href="${url}" target="_blank" class="download-link">Download</a></div>`;
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
+
+        modalClose.addEventListener('click', () => {
+            modal.classList.remove('active');
+            modalBody.innerHTML = '';
+            document.body.style.overflow = '';
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+                modalBody.innerHTML = '';
+                document.body.style.overflow = '';
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                modal.classList.remove('active');
+                modalBody.innerHTML = '';
+                document.body.style.overflow = '';
+            }
+        });
+
+        document.getElementById('searchBox').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase().trim();
+            
+            if (term === '') {
+                displayJobs(allCompletedJobs);
+                updateStats(allCompletedJobs);
+            } else {
+                const filtered = allCompletedJobs.filter(job => {
+                    const num = (job.jobNumber || '').toLowerCase();
+                    const post = (job.customerDetails?.postcode || '').toLowerCase();
+                    const team = (job.assignedTeam || '').toLowerCase();
+                    return num.includes(term) || post.includes(term) || team.includes(term);
+                });
+                displayJobs(filtered);
+                updateStats(filtered);
+            }
+        });
+
+        loadJobs();
+    </script>
+</body>
+</html>
