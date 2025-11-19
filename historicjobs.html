@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -629,7 +628,7 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // Firebase configuration
         const firebaseConfig = {
@@ -655,19 +654,27 @@
             const jobsList = document.getElementById('jobsList');
 
             try {
-                const q = query(
-                    collection(db, "solarSurveys"),
-                    where("jobStatus", "==", "completed"),
-                    orderBy("lastStatusUpdate", "desc")
-                );
+                // Get all jobs first, then filter for completed ones
+                const q = query(collection(db, "solarSurveys"), orderBy("submittedAt", "desc"));
                 const querySnapshot = await getDocs(q);
                 
                 allCompletedJobs = [];
                 querySnapshot.forEach((doc) => {
-                    allCompletedJobs.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
+                    const jobData = doc.data();
+                    // Only include jobs with completed status
+                    if (jobData.jobStatus === 'completed') {
+                        allCompletedJobs.push({
+                            id: doc.id,
+                            ...jobData
+                        });
+                    }
+                });
+
+                // Sort by completion date (most recent first)
+                allCompletedJobs.sort((a, b) => {
+                    const dateA = a.lastStatusUpdate ? new Date(a.lastStatusUpdate) : new Date(0);
+                    const dateB = b.lastStatusUpdate ? new Date(b.lastStatusUpdate) : new Date(0);
+                    return dateB - dateA;
                 });
 
                 loading.style.display = 'none';
