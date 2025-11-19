@@ -654,13 +654,16 @@
             const jobsList = document.getElementById('jobsList');
 
             try {
+                console.log("Starting to load jobs...");
                 // Get all jobs first, then filter for completed ones
-                const q = query(collection(db, "solarSurveys"), orderBy("submittedAt", "desc"));
-                const querySnapshot = await getDocs(q);
+                const querySnapshot = await getDocs(collection(db, "solarSurveys"));
+                
+                console.log("Total jobs loaded:", querySnapshot.size);
                 
                 allCompletedJobs = [];
                 querySnapshot.forEach((doc) => {
                     const jobData = doc.data();
+                    console.log("Job:", doc.id, "Status:", jobData.jobStatus);
                     // Only include jobs with completed status
                     if (jobData.jobStatus === 'completed') {
                         allCompletedJobs.push({
@@ -669,6 +672,8 @@
                         });
                     }
                 });
+
+                console.log("Completed jobs found:", allCompletedJobs.length);
 
                 // Sort by completion date (most recent first)
                 allCompletedJobs.sort((a, b) => {
@@ -681,6 +686,7 @@
 
                 if (allCompletedJobs.length === 0) {
                     noJobs.style.display = 'block';
+                    noJobs.textContent = 'No completed jobs found. Jobs need to be marked as "completed" in View Jobs.';
                 } else {
                     displayJobs(allCompletedJobs);
                     updateStats(allCompletedJobs);
@@ -688,7 +694,7 @@
 
             } catch (error) {
                 console.error("Error loading jobs: ", error);
-                loading.innerHTML = `<div style="color: #e74c3c;">Error loading jobs: ${error.message}</div>`;
+                loading.innerHTML = `<div style="color: #e74c3c;">Error loading jobs: ${error.message}<br>Check console for details.</div>`;
             }
         }
 
