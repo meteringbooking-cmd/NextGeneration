@@ -740,7 +740,7 @@
 
             elements.emptyState.style.display = 'none';
             elements.documentsList.style.display = 'grid';
-            elements.documentsList.innerHTML = sortedDocs.map(doc => `
+            elements.documentsList.innerHTML = sortedDocs.map((doc, index) => `
                 <div class="document-item">
                     <div class="document-info">
                         <div class="document-icon">${getFileIcon(doc.fileExtension)}</div>
@@ -754,17 +754,26 @@
                     </div>
                     <div class="document-actions">
                         <button class="btn btn-view" onclick="window.open('${doc.url}', '_blank')">View</button>
-                        <button class="btn btn-delete" onclick="showDeleteConfirmation('${doc.id}', '${doc.storageFilename}')">Delete</button>
+                        <button class="btn btn-delete" data-doc-id="${doc.id}" data-storage-filename="${doc.storageFilename}">Delete</button>
                     </div>
                 </div>
             `).join('');
+
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const docId = this.getAttribute('data-doc-id');
+                    const storageFilename = this.getAttribute('data-storage-filename');
+                    showDeleteConfirmation(docId, storageFilename);
+                });
+            });
         }
 
         // Delete confirmation
-        window.showDeleteConfirmation = function(docId, storageFilename) {
+        function showDeleteConfirmation(docId, storageFilename) {
             documentToDelete = { id: docId, storageFilename: storageFilename };
             elements.deleteModal.classList.add('visible');
-        };
+        }
 
         function hideDeleteModal() {
             elements.deleteModal.classList.remove('visible');
