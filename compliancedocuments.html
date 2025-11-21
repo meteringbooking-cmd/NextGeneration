@@ -754,64 +754,10 @@
                     </div>
                     <div class="document-actions">
                         <button class="btn btn-view" onclick="window.open('${doc.url}', '_blank')">View</button>
-                        <button class="btn btn-delete" data-doc-id="${doc.id}" data-storage-filename="${doc.storageFilename}">Delete</button>
                     </div>
                 </div>
             `).join('');
 
-            // Add event listeners to delete buttons
-            document.querySelectorAll('.btn-delete').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const docId = this.getAttribute('data-doc-id');
-                    const storageFilename = this.getAttribute('data-storage-filename');
-                    showDeleteConfirmation(docId, storageFilename);
-                });
-            });
-        }
-
-        // Delete confirmation
-        function showDeleteConfirmation(docId, storageFilename) {
-            documentToDelete = { id: docId, storageFilename: storageFilename };
-            elements.deleteModal.classList.add('visible');
-        }
-
-        function hideDeleteModal() {
-            elements.deleteModal.classList.remove('visible');
-            documentToDelete = null;
-        }
-
-        elements.cancelDeleteBtn.addEventListener('click', hideDeleteModal);
-
-        elements.confirmDeleteBtn.addEventListener('click', async () => {
-            if (!documentToDelete) return;
-
-            hideDeleteModal();
-            await deleteDocument(documentToDelete.id, documentToDelete.storageFilename);
-        });
-
-        // Delete document
-        async function deleteDocument(docId, storageFilename) {
-            elements.loading.style.display = 'block';
-            elements.documentsList.style.display = 'none';
-            hideAlerts();
-
-            try {
-                // Delete from Storage
-                const storageRef = ref(storage, `compliance-documents/${storageFilename}`);
-                await deleteObject(storageRef);
-
-                // Delete from Firestore
-                await deleteDoc(doc(db, "complianceDocuments", docId));
-
-                showSuccess("Document deleted successfully!");
-                await loadDocuments();
-
-            } catch (error) {
-                console.error("Error deleting document:", error);
-                showError(error.message);
-                elements.loading.style.display = 'none';
-                displayDocuments();
-            }
         }
 
         // Sort buttons
