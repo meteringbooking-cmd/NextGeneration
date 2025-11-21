@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compliance Documents - Solar Department</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .back-button:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #333;
+        }
+
+        .sort-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .sort-btn {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .sort-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .sort-btn:hover:not(.active) {
+            background: #f8f9fa;
+        }
+
+        .content-area {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            margin-bottom: 30px;
+        }
+
+        .upload-area:hover {
+            background: #e9ecef;
+            border-color: #5568d3;
+        }
+
+        .upload-area.dragover {
+            background: #e7eaff;
+            border-color: #5568d3;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.visible {
+            display: block;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .documents-section {
+            margin-top: 30px;
+        }
+
+        .documents-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .documents-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .document-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .document-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .document-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .document-icon {
+            font-size: 2.5rem;
+            width: 60px;
+            text-align: center;
+        }
+
+        .document-details {
+            flex: 1;
+        }
+
+        .document-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .document-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .document-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-view {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-view:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-delete {
+            background: #fee;
+            color: #e74c3c;
+        }
+
+        .btn-delete:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-state-text {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.visible {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            background: #f8f9fa;
+            color: #666;
+        }
+
+        .btn-cancel:hover {
+            background: #e9ecef;
+        }
+
+        .btn-confirm {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .document-item {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .document-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .document-actions {
+                width: 100%;
+            }
+
+            .btn {
+                flex: 1;
+            }
+
+            .sort-controls {
+                width: 100%;
+            }
+
+            .sort-btn {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="solar.html" class="back-button">← Back to Solar Department</a>
+
+        <div class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="header-icon">📋</div>
+                    <h1>Compliance Documents</h1>
+                </div>
+                <div class="sort-controls">
+                    <button class="sort-btn active" id="sortChronological">Newest First</button>
+                    <button class="sort-btn" id="sortAlphabetical">A-Z</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="alert alert-success" id="successAlert">
+                ✓ Document uploaded successfully!
+            </div>
+
+            <div class="alert alert-error" id="errorAlert">
+                ✗ Error uploading document. Please try again.
+            </div>
+
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">Click to browse or drag and drop files here</div>
+                <div class="upload-subtext">Support for PDF, PPT, Word Documents, Videos, and Images</div>
+            </div>
+            <input type="file" id="fileInput" accept=".pdf,.ppt,.pptx,.doc,.docx,.mp4,.mov,.avi,.mkv,.jpg,.jpeg,.png,.gif">
+        </div>
+
+        <div class="content-area">
+            <div class="documents-section">
+                <h2>All Documents</h2>
+                <div class="loading" id="loading">Loading documents...</div>
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <div class="empty-state-icon">📂</div>
+                    <div class="empty-state-text">No documents uploaded yet</div>
+                </div>
+                <div class="documents-list" id="documentsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for display name input -->
+    <div class="modal" id="nameModal">
+        <div class="modal-content">
+            <div class="modal-header">Name Your Document</div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Display Name</label>
+                    <input type="text" class="form-input" id="displayNameInput" placeholder="Enter a name for this document">
+                </div>
+                <div style="font-size: 0.85rem; color: #666; margin-top: 10px;">
+                    Original filename: <span id="originalFilename"></span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" id="cancelBtn">Cancel</button>
+                <button class="btn btn-confirm" id="confirmBtn">Upload</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete confirmation modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <div class="modal-header">Confirm Delete</div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this document? This action cannot be undone.</p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" id="cancelDeleteBtn">Cancel</button>
+                <button class="btn btn-delete" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDCu9bhDYMRSOEsuUKCiq2F-fC3zMFJ4Q",
+            authDomain: "ngusolar-f527e.firebaseapp.com",
+            projectId: "ngusolar-f527e",
+            storageBucket: "ngusolar-f527e.firebasestorage.app",
+            messagingSenderId: "366807218136",
+            appId: "1:366807218136:web:67724479c7955f611e64ad",
+            measurementId: "G-R632HTYYKV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        let selectedFile = null;
+        let currentSortMode = 'chronological'; // 'chronological' or 'alphabetical'
+        let documents = [];
+        let documentToDelete = null;
+
+        const elements = {
+            uploadArea: document.getElementById('uploadArea'),
+            fileInput: document.getElementById('fileInput'),
+            nameModal: document.getElementById('nameModal'),
+            displayNameInput: document.getElementById('displayNameInput'),
+            originalFilename: document.getElementById('originalFilename'),
+            confirmBtn: document.getElementById('confirmBtn'),
+            cancelBtn: document.getElementById('cancelBtn'),
+            successAlert: document.getElementById('successAlert'),
+            errorAlert: document.getElementById('errorAlert'),
+            documentsList: document.getElementById('documentsList'),
+            loading: document.getElementById('loading'),
+            emptyState: document.getElementById('emptyState'),
+            sortChronological: document.getElementById('sortChronological'),
+            sortAlphabetical: document.getElementById('sortAlphabetical'),
+            deleteModal: document.getElementById('deleteModal'),
+            confirmDeleteBtn: document.getElementById('confirmDeleteBtn'),
+            cancelDeleteBtn: document.getElementById('cancelDeleteBtn')
+        };
+
+        // Load documents on page load
+        loadDocuments();
+
+        // Upload area click
+        elements.uploadArea.addEventListener('click', () => elements.fileInput.click());
+
+        // File input change
+        elements.fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                showNameModal(selectedFile.name);
+            }
+        });
+
+        // Drag and drop
+        elements.uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            elements.uploadArea.classList.add('dragover');
+        });
+
+        elements.uploadArea.addEventListener('dragleave', () => {
+            elements.uploadArea.classList.remove('dragover');
+        });
+
+        elements.uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            elements.uploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                selectedFile = e.dataTransfer.files[0];
+                showNameModal(selectedFile.name);
+            }
+        });
+
+        // Modal controls
+        function showNameModal(filename) {
+            elements.originalFilename.textContent = filename;
+            elements.displayNameInput.value = filename.substring(0, filename.lastIndexOf('.')) || filename;
+            elements.nameModal.classList.add('visible');
+            elements.displayNameInput.focus();
+        }
+
+        function hideNameModal() {
+            elements.nameModal.classList.remove('visible');
+            selectedFile = null;
+            elements.fileInput.value = '';
+        }
+
+        elements.cancelBtn.addEventListener('click', hideNameModal);
+
+        elements.confirmBtn.addEventListener('click', async () => {
+            const displayName = elements.displayNameInput.value.trim();
+            if (!displayName) {
+                alert('Please enter a display name');
+                return;
+            }
+
+            hideNameModal();
+            await uploadDocument(selectedFile, displayName);
+        });
+
+        // Handle Enter key in input
+        elements.displayNameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                elements.confirmBtn.click();
+            }
+        });
+
+        // Close modal on background click
+        elements.nameModal.addEventListener('click', (e) => {
+            if (e.target === elements.nameModal) {
+                hideNameModal();
+            }
+        });
+
+        elements.deleteModal.addEventListener('click', (e) => {
+            if (e.target === elements.deleteModal) {
+                hideDeleteModal();
+            }
+        });
+
+        // Upload document
+        async function uploadDocument(file, displayName) {
+            elements.loading.style.display = 'block';
+            elements.documentsList.style.display = 'none';
+            elements.emptyState.style.display = 'none';
+            hideAlerts();
+
+            try {
+                // Create unique filename
+                const timestamp = Date.now();
+                const fileExtension = file.name.substring(file.name.lastIndexOf('.'));
+                const storageFilename = `${timestamp}_${file.name}`;
+                const storageRef = ref(storage, `compliance-documents/${storageFilename}`);
+
+                // Upload file
+                await uploadBytes(storageRef, file);
+                const downloadURL = await getDownloadURL(storageRef);
+
+                // Save to Firestore
+                await addDoc(collection(db, "complianceDocuments"), {
+                    displayName: displayName,
+                    originalFilename: file.name,
+                    storageFilename: storageFilename,
+                    url: downloadURL,
+                    uploadedAt: new Date().toISOString(),
+                    size: file.size,
+                    type: file.type,
+                    fileExtension: fileExtension
+                });
+
+                showSuccess();
+                await loadDocuments();
+
+            } catch (error) {
+                console.error("Error uploading document:", error);
+                showError(error.message);
+                elements.loading.style.display = 'none';
+                displayDocuments();
+            }
+        }
+
+        // Load documents
+        async function loadDocuments() {
+            elements.loading.style.display = 'block';
+            elements.documentsList.style.display = 'none';
+            elements.emptyState.style.display = 'none';
+
+            try {
+                const querySnapshot = await getDocs(collection(db, "complianceDocuments"));
+                documents = [];
+                
+                querySnapshot.forEach((doc) => {
+                    documents.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                elements.loading.style.display = 'none';
+                displayDocuments();
+
+            } catch (error) {
+                console.error("Error loading documents:", error);
+                elements.loading.style.display = 'none';
+                showError("Error loading documents");
+            }
+        }
+
+        // Display documents
+        function displayDocuments() {
+            if (documents.length === 0) {
+                elements.documentsList.style.display = 'none';
+                elements.emptyState.style.display = 'block';
+                return;
+            }
+
+            // Sort documents
+            const sortedDocs = [...documents];
+            if (currentSortMode === 'alphabetical') {
+                sortedDocs.sort((a, b) => a.displayName.localeCompare(b.displayName));
+            } else {
+                sortedDocs.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+            }
+
+            elements.emptyState.style.display = 'none';
+            elements.documentsList.style.display = 'grid';
+            elements.documentsList.innerHTML = sortedDocs.map(doc => `
+                <div class="document-item">
+                    <div class="document-info">
+                        <div class="document-icon">${getFileIcon(doc.fileExtension)}</div>
+                        <div class="document-details">
+                            <div class="document-name">${doc.displayName}</div>
+                            <div class="document-meta">
+                                <span>📅 ${formatDate(doc.uploadedAt)}</span>
+                                <span>📦 ${formatFileSize(doc.size)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="document-actions">
+                        <button class="btn btn-view" onclick="window.open('${doc.url}', '_blank')">View</button>
+                        <button class="btn btn-delete" onclick="showDeleteConfirmation('${doc.id}', '${doc.storageFilename}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Delete confirmation
+        window.showDeleteConfirmation = function(docId, storageFilename) {
+            documentToDelete = { id: docId, storageFilename: storageFilename };
+            elements.deleteModal.classList.add('visible');
+        };
+
+        function hideDeleteModal() {
+            elements.deleteModal.classList.remove('visible');
+            documentToDelete = null;
+        }
+
+        elements.cancelDeleteBtn.addEventListener('click', hideDeleteModal);
+
+        elements.confirmDeleteBtn.addEventListener('click', async () => {
+            if (!documentToDelete) return;
+
+            hideDeleteModal();
+            await deleteDocument(documentToDelete.id, documentToDelete.storageFilename);
+        });
+
+        // Delete document
+        async function deleteDocument(docId, storageFilename) {
+            elements.loading.style.display = 'block';
+            elements.documentsList.style.display = 'none';
+            hideAlerts();
+
+            try {
+                // Delete from Storage
+                const storageRef = ref(storage, `compliance-documents/${storageFilename}`);
+                await deleteObject(storageRef);
+
+                // Delete from Firestore
+                await deleteDoc(doc(db, "complianceDocuments", docId));
+
+                showSuccess("Document deleted successfully!");
+                await loadDocuments();
+
+            } catch (error) {
+                console.error("Error deleting document:", error);
+                showError(error.message);
+                elements.loading.style.display = 'none';
+                displayDocuments();
+            }
+        }
+
+        // Sort buttons
+        elements.sortChronological.addEventListener('click', () => {
+            currentSortMode = 'chronological';
+            elements.sortChronological.classList.add('active');
+            elements.sortAlphabetical.classList.remove('active');
+            displayDocuments();
+        });
+
+        elements.sortAlphabetical.addEventListener('click', () => {
+            currentSortMode = 'alphabetical';
+            elements.sortAlphabetical.classList.add('active');
+            elements.sortChronological.classList.remove('active');
+            displayDocuments();
+        });
+
+        // Helper functions
+        function getFileIcon(extension) {
+            const ext = extension.toLowerCase();
+            if (['.jpg', '.jpeg', '.png', '.gif', '.bmp'].includes(ext)) return '🖼️';
+            if (['.pdf'].includes(ext)) return '📄';
+            if (['.doc', '.docx'].includes(ext)) return '📝';
+            if (['.ppt', '.pptx'].includes(ext)) return '📊';
+            if (['.mp4', '.mov', '.avi', '.mkv', '.webm'].includes(ext)) return '🎥';
+            if (['.xls', '.xlsx'].includes(ext)) return '📊';
+            return '📎';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function showSuccess(message = "Document uploaded successfully!") {
+            elements.successAlert.textContent = `✓ ${message}`;
+            elements.successAlert.classList.add('visible');
+            setTimeout(() => {
+                elements.successAlert.classList.remove('visible');
+            }, 5000);
+        }
+
+        function showError(message) {
+            elements.errorAlert.textContent = `✗ ${message}`;
+            elements.errorAlert.classList.add('visible');
+            setTimeout(() => {
+                elements.errorAlert.classList.remove('visible');
+            }, 5000);
+        }
+
+        function hideAlerts() {
+            elements.successAlert.classList.remove('visible');
+            elements.errorAlert.classList.remove('visible');
+        }
+    </script>
+</body>
+</html>
