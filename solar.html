@@ -382,30 +382,20 @@
 
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
-                    const status = data.status || data.jobStatus || '';
+                    const status = (data.status || data.jobStatus || '').toLowerCase().trim();
                     
-                    switch(status.toLowerCase()) {
-                        case 'awaiting work':
-                        case 'awaiting':
-                            awaiting++;
-                            break;
-                        case 'in progress':
-                        case 'in-progress':
-                        case 'inprogress':
-                            inProgress++;
-                            break;
-                        case 'completed':
-                        case 'complete':
-                            completed++;
-                            break;
-                        case 'cancelled':
-                        case 'canceled':
-                            cancelled++;
-                            break;
-                        case 'revisiting':
-                        case 'revisit':
-                            revisiting++;
-                            break;
+                    console.log('Job status:', status); // Debug log
+                    
+                    if (status.includes('await')) {
+                        awaiting++;
+                    } else if (status.includes('progress') || status.includes('inprogress')) {
+                        inProgress++;
+                    } else if (status.includes('complet')) {
+                        completed++;
+                    } else if (status.includes('cancel')) {
+                        cancelled++;
+                    } else if (status.includes('revisit')) {
+                        revisiting++;
                     }
                 });
 
