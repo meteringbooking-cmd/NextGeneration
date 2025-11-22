@@ -351,6 +351,112 @@
             </div>
         </div>
     </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpCu9bhDYMRSOEsuUKCiq2F-fC3zMFJ4Q",
+            authDomain: "ngusolar-f527e.firebaseapp.com",
+            projectId: "ngusolar-f527e",
+            storageBucket: "ngusolar-f527e.firebasestorage.app",
+            messagingSenderId: "366807218136",
+            appId: "1:366807218136:web:67724479c7955f611e64ad",
+            measurementId: "G-R632HTYYKV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Load and count jobs by status
+        async function loadJobCounts() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "solarSurveys"));
+                
+                let awaiting = 0;
+                let inProgress = 0;
+                let completed = 0;
+                let cancelled = 0;
+                let revisiting = 0;
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const status = data.status || data.jobStatus || '';
+                    
+                    switch(status.toLowerCase()) {
+                        case 'awaiting work':
+                        case 'awaiting':
+                            awaiting++;
+                            break;
+                        case 'in progress':
+                        case 'in-progress':
+                        case 'inprogress':
+                            inProgress++;
+                            break;
+                        case 'completed':
+                        case 'complete':
+                            completed++;
+                            break;
+                        case 'cancelled':
+                        case 'canceled':
+                            cancelled++;
+                            break;
+                        case 'revisiting':
+                        case 'revisit':
+                            revisiting++;
+                            break;
+                    }
+                });
+
+                // Update counter displays
+                updateCounter('awaiting', awaiting);
+                updateCounter('in-progress', inProgress);
+                updateCounter('completed', completed);
+                updateCounter('cancelled', cancelled);
+                updateCounter('revisiting', revisiting);
+
+            } catch (error) {
+                console.error("Error loading job counts:", error);
+            }
+        }
+
+        function updateCounter(type, count) {
+            const counterCards = document.querySelectorAll('.counter-card');
+            counterCards.forEach(card => {
+                if (card.classList.contains(type) || 
+                    (type === 'in-progress' && card.classList.contains('in-progress'))) {
+                    const valueElement = card.querySelector('.counter-value');
+                    if (valueElement) {
+                        // Animate the counter
+                        animateCounter(valueElement, count);
+                    }
+                }
+            });
+        }
+
+        function animateCounter(element, target) {
+            const duration = 1000; // 1 second
+            const start = 0;
+            const increment = target / (duration / 16); // 60fps
+            let current = start;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current);
+                }
+            }, 16);
+        }
+
+        // Load counts when page loads
+        loadJobCounts();
+
+        // Refresh counts every 30 seconds
+        setInterval(loadJobCounts, 30000);
+    </script>
 </body>
-</html>
 </html>
