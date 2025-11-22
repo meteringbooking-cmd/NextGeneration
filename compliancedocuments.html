@@ -556,7 +556,7 @@
         const storage = getStorage(app);
 
         let selectedFile = null;
-        let currentSortMode = 'chronological'; // 'chronological' or 'alphabetical'
+        let currentSortMode = 'chronological';
         let documents = [];
         let documentToDelete = null;
 
@@ -580,13 +580,10 @@
             cancelDeleteBtn: document.getElementById('cancelDeleteBtn')
         };
 
-        // Load documents on page load
         loadDocuments();
 
-        // Upload area click
         elements.uploadArea.addEventListener('click', () => elements.fileInput.click());
 
-        // File input change
         elements.fileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
                 selectedFile = e.target.files[0];
@@ -594,7 +591,6 @@
             }
         });
 
-        // Drag and drop
         elements.uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             elements.uploadArea.classList.add('dragover');
@@ -613,7 +609,6 @@
             }
         });
 
-        // Modal controls
         function showNameModal(filename) {
             elements.originalFilename.textContent = filename;
             elements.displayNameInput.value = filename.substring(0, filename.lastIndexOf('.')) || filename;
@@ -641,14 +636,12 @@
             await uploadDocument(fileToUpload, displayName);
         });
 
-        // Handle Enter key in input
         elements.displayNameInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 elements.confirmBtn.click();
             }
         });
 
-        // Close modal on background click
         elements.nameModal.addEventListener('click', (e) => {
             if (e.target === elements.nameModal) {
                 hideNameModal();
@@ -661,7 +654,6 @@
             }
         });
 
-        // Upload document
         async function uploadDocument(file, displayName) {
             elements.loading.style.display = 'block';
             elements.documentsList.style.display = 'none';
@@ -669,17 +661,14 @@
             hideAlerts();
 
             try {
-                // Create unique filename
                 const timestamp = Date.now();
                 const fileExtension = file.name.substring(file.name.lastIndexOf('.'));
                 const storageFilename = `${timestamp}_${file.name}`;
                 const storageRef = ref(storage, `compliance-documents/${storageFilename}`);
 
-                // Upload file
                 await uploadBytes(storageRef, file);
                 const downloadURL = await getDownloadURL(storageRef);
 
-                // Save to Firestore
                 await addDoc(collection(db, "complianceDocuments"), {
                     displayName: displayName,
                     originalFilename: file.name,
@@ -702,7 +691,6 @@
             }
         }
 
-        // Load documents
         async function loadDocuments() {
             elements.loading.style.display = 'block';
             elements.documentsList.style.display = 'none';
@@ -729,7 +717,78 @@
             }
         }
 
-        // Display documents
+        function viewDocument(url, extension, displayName) {
+            const ext = extension.toLowerCase();
+            
+            // For images - create inline viewer
+            if (['.jpg', '.jpeg', '.png', '.gif', '.bmp'].includes(ext)) {
+                const viewer = window.open('', '_blank');
+                if (viewer) {
+                    viewer.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>${displayName}</title>
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <style>
+                                body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #000; }
+                                img { max-width: 100%; max-height: 100vh; object-fit: contain; }
+                            </style>
+                        </head>
+                        <body>
+                            <img src="${url}" alt="${displayName}">
+                        </body>
+                        </html>
+                    `);
+                }
+                return;
+            }
+            
+            // For videos - create inline player
+            if (['.mp4', '.mov', '.webm', '.avi', '.mkv'].includes(ext)) {
+                const viewer = window.open('', '_blank');
+                if (viewer) {
+                    viewer.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>${displayName}</title>
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <style>
+                                body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #000; }
+                                video { max-width: 100%; max-height: 100vh; }
+                            </style>
+                        </head>
+                        <body>
+                            <video controls autoplay playsinline>
+                                <source src="${url}">
+                                Your browser does not support the video tag.
+                            </video>
+                        </body>
+                        </html>
+                    `);
+                }
+                return;
+            }
+            
+            // For PDFs - add view parameter
+            if (ext === '.pdf') {
+                window.open(url + '#view=FitH', '_blank');
+                return;
+            }
+            
+            // For Office docs - use Google Docs Viewer
+            if (['.doc', '.docx', '.ppt', '.pptx', '.xls', '.xlsx'].includes(ext)) {
+                window.open(`https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`, '_blank');
+                return;
+            }
+            
+            // Default fallback
+            window.open(url, '_blank');
+        }
+
+        window.viewDocument = viewDocument;
+
         function displayDocuments() {
             if (documents.length === 0) {
                 elements.documentsList.style.display = 'none';
@@ -737,7 +796,6 @@
                 return;
             }
 
-            // Sort documents
             const sortedDocs = [...documents];
             if (currentSortMode === 'alphabetical') {
                 sortedDocs.sort((a, b) => a.displayName.localeCompare(b.displayName));
@@ -760,14 +818,12 @@
                         </div>
                     </div>
                     <div class="document-actions">
-                        <button class="btn btn-view" onclick="window.open('${doc.url}', '_blank')">View</button>
+                        <button class="btn btn-view" onclick="viewDocument('${doc.url}', '${doc.fileExtension}', '${doc.displayName}')">View</button>
                     </div>
                 </div>
             `).join('');
-
         }
 
-        // Sort buttons
         elements.sortChronological.addEventListener('click', () => {
             currentSortMode = 'chronological';
             elements.sortChronological.classList.add('active');
@@ -782,7 +838,6 @@
             displayDocuments();
         });
 
-        // Helper functions
         function getFileIcon(extension) {
             const ext = extension.toLowerCase();
             if (['.jpg', '.jpeg', '.png', '.gif', '.bmp'].includes(ext)) return '🖼️';
