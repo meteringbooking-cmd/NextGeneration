@@ -374,7 +374,7 @@
             try {
                 const querySnapshot = await getDocs(collection(db, "solarSurveys"));
                 
-                let awaiting = 0;
+                let totalJobs = 0;
                 let inProgress = 0;
                 let completed = 0;
                 let cancelled = 0;
@@ -384,11 +384,9 @@
                     const data = doc.data();
                     const status = (data.status || data.jobStatus || '').toLowerCase().trim();
                     
-                    console.log('Job status:', status); // Debug log
+                    totalJobs++;
                     
-                    if (status.includes('await')) {
-                        awaiting++;
-                    } else if (status.includes('progress') || status.includes('inprogress')) {
+                    if (status.includes('progress') || status.includes('inprogress')) {
                         inProgress++;
                     } else if (status.includes('complet')) {
                         completed++;
@@ -398,6 +396,9 @@
                         revisiting++;
                     }
                 });
+
+                // Calculate awaiting work as: Total - (In Progress + Completed + Cancelled)
+                const awaiting = totalJobs - (inProgress + completed + cancelled);
 
                 // Update counter displays
                 updateCounter('awaiting', awaiting);
