@@ -1031,14 +1031,17 @@
             const jobsList = document.getElementById('jobsList');
             const noJobs = document.getElementById('noJobs');
 
-            if (jobs.length === 0) {
+            // Filter out completed jobs
+            const activeJobs = jobs.filter(job => job.jobStatus !== 'completed');
+
+            if (activeJobs.length === 0) {
                 jobsList.innerHTML = '';
                 noJobs.style.display = 'block';
                 return;
             }
 
             noJobs.style.display = 'none';
-            jobsList.innerHTML = jobs.map(job => createJobCard(job)).join('');
+            jobsList.innerHTML = activeJobs.map(job => createJobCard(job)).join('');
 
             // Add click handlers
             document.querySelectorAll('.job-header').forEach(header => {
