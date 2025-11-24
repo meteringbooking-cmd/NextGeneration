@@ -523,18 +523,21 @@
         function checkEdgeScroll(e) {
             if (!isDragging) return;
             
-            const scrollThreshold = 150; // pixels from edge to trigger scroll
-            const windowWidth = window.innerWidth;
+            const timelineGrid = document.getElementById('timeline-grid');
+            if (!timelineGrid) return;
+            
+            const gridRect = timelineGrid.getBoundingClientRect();
+            const scrollThreshold = 100; // pixels from edge to trigger scroll
             const mouseX = e.clientX;
             
-            // Check if near right edge
-            if (mouseX > windowWidth - scrollThreshold) {
+            // Check if near right edge of the grid
+            if (mouseX > gridRect.right - scrollThreshold && mouseX < gridRect.right + 50) {
                 if (!autoScrollInterval) {
                     startAutoScroll('right');
                 }
             }
-            // Check if near left edge
-            else if (mouseX < scrollThreshold) {
+            // Check if near left edge of the grid
+            else if (mouseX < gridRect.left + scrollThreshold && mouseX > gridRect.left - 50) {
                 if (!autoScrollInterval) {
                     startAutoScroll('left');
                 }
