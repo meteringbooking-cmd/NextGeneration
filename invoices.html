@@ -1,1 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoices - Solar Department</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .back-button:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #333;
+        }
+
+        .add-invoice-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .add-invoice-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .content-area {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .search-section {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: #999;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-state-text {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .invoices-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .invoices-table thead {
+            background: #f8f9fa;
+        }
+
+        .invoices-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #667eea;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .invoices-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .invoices-table tbody tr {
+            transition: background 0.3s ease;
+        }
+
+        .invoices-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .invoice-number {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .team-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .invoice-date {
+            color: #666;
+        }
+
+        .invoice-value {
+            font-weight: 700;
+            color: #43e97b;
+            font-size: 1.1rem;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-view {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-view:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-delete {
+            background: #fee;
+            color: #e74c3c;
+        }
+
+        .btn-delete:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.visible {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            background: #f8f9fa;
+            color: #666;
+        }
+
+        .btn-cancel:hover {
+            background: #e9ecef;
+        }
+
+        .btn-confirm {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.visible {
+            display: block;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .add-invoice-btn {
+                width: 100%;
+            }
+
+            .invoices-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .actions-cell {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="solar.html" class="back-button">← Back to Solar Department</a>
+
+        <div class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="header-icon">📄</div>
+                    <h1>Invoices</h1>
+                </div>
+                <button class="add-invoice-btn" id="addInvoiceBtn">+ Add Invoice</button>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="alert alert-success" id="successAlert">
+                ✓ Invoice added successfully!
+            </div>
+
+            <div class="alert alert-error" id="errorAlert">
+                ✗ Error processing invoice. Please try again.
+            </div>
+
+            <div class="search-section">
+                <input type="text" class="search-box" id="searchBox" placeholder="Search by invoice number, team name...">
+                <span class="search-icon">🔍</span>
+            </div>
+
+            <div class="loading" id="loading">Loading invoices...</div>
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-state-icon">📄</div>
+                <div class="empty-state-text">No invoices yet. Click "Add Invoice" to create one.</div>
+            </div>
+
+            <table class="invoices-table" id="invoicesTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Invoice Number</th>
+                        <th>Team Name</th>
+                        <th>Date</th>
+                        <th>Value</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="invoicesTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Invoice Modal -->
+    <div class="modal" id="addInvoiceModal">
+        <div class="modal-content">
+            <div class="modal-header">Add New Invoice</div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Invoice Number</label>
+                    <input type="text" class="form-input" id="invoiceNumber" placeholder="e.g., INV-001">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Team Name</label>
+                    <select class="form-select" id="teamName">
+                        <option value="">Loading teams...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date</label>
+                    <input type="date" class="form-input" id="invoiceDate">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Value (£)</label>
+                    <input type="number" class="form-input" id="invoiceValue" placeholder="0.00" step="0.01" min="0">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" id="cancelBtn">Cancel</button>
+                <button class="btn btn-confirm" id="confirmBtn">Add Invoice</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <div class="modal-header">Confirm Delete</div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this invoice? This action cannot be undone.</p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" id="cancelDeleteBtn">Cancel</button>
+                <button class="btn btn-delete" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpCu9bhDYMRSOEsuUKCiq2F-fC3zMFJ4Q",
+            authDomain: "ngusolar-f527e.firebaseapp.com",
+            projectId: "ngusolar-f527e",
+            storageBucket: "ngusolar-f527e.firebasestorage.app",
+            messagingSenderId: "366807218136",
+            appId: "1:366807218136:web:67724479c7955f611e64ad",
+            measurementId: "G-R632HTYYKV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let invoices = [];
+        let teams = [];
+        let invoiceToDelete = null;
+
+        const elements = {
+            loading: document.getElementById('loading'),
+            emptyState: document.getElementById('emptyState'),
+            invoicesTable: document.getElementById('invoicesTable'),
+            invoicesTableBody: document.getElementById('invoicesTableBody'),
+            addInvoiceBtn: document.getElementById('addInvoiceBtn'),
+            addInvoiceModal: document.getElementById('addInvoiceModal'),
+            deleteModal: document.getElementById('deleteModal'),
+            searchBox: document.getElementById('searchBox'),
+            successAlert: document.getElementById('successAlert'),
+            errorAlert: document.getElementById('errorAlert'),
+            invoiceNumber: document.getElementById('invoiceNumber'),
+            teamName: document.getElementById('teamName'),
+            invoiceDate: document.getElementById('invoiceDate'),
+            invoiceValue: document.getElementById('invoiceValue'),
+            confirmBtn: document.getElementById('confirmBtn'),
+            cancelBtn: document.getElementById('cancelBtn'),
+            confirmDeleteBtn: document.getElementById('confirmDeleteBtn'),
+            cancelDeleteBtn: document.getElementById('cancelDeleteBtn')
+        };
+
+        // Load invoices and teams
+        loadInvoices();
+        loadTeams();
+
+        // Load teams
+        async function loadTeams() {
+            try {
+                const q = query(collection(db, "solarTeams"), orderBy("createdAt", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                teams = [];
+                querySnapshot.forEach((doc) => {
+                    teams.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                updateTeamSelect();
+
+            } catch (error) {
+                console.error("Error loading teams:", error);
+            }
+        }
+
+        function updateTeamSelect() {
+            if (teams.length === 0) {
+                elements.teamName.innerHTML = '<option value="">No teams available</option>';
+            } else {
+                elements.teamName.innerHTML = '<option value="">Select a team...</option>' +
+                    teams.map(team => `<option value="${team.name}">${team.name}</option>`).join('');
+            }
+        }
+
+        // Load invoices
+        async function loadInvoices() {
+            elements.loading.style.display = 'block';
+            elements.invoicesTable.style.display = 'none';
+            elements.emptyState.style.display = 'none';
+
+            try {
+                const q = query(collection(db, "invoices"), orderBy("date", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                invoices = [];
+                querySnapshot.forEach((doc) => {
+                    invoices.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                elements.loading.style.display = 'none';
+                displayInvoices(invoices);
+
+            } catch (error) {
+                console.error("Error loading invoices:", error);
+                elements.loading.style.display = 'none';
+                showError("Error loading invoices");
+            }
+        }
+
+        // Display invoices
+        function displayInvoices(invoicesToDisplay) {
+            if (invoicesToDisplay.length === 0) {
+                elements.invoicesTable.style.display = 'none';
+                elements.emptyState.style.display = 'block';
+                return;
+            }
+
+            elements.emptyState.style.display = 'none';
+            elements.invoicesTable.style.display = 'table';
+            
+            elements.invoicesTableBody.innerHTML = invoicesToDisplay.map(invoice => `
+                <tr>
+                    <td class="invoice-number">${invoice.invoiceNumber}</td>
+                    <td class="team-name">${invoice.teamName}</td>
+                    <td class="invoice-date">${formatDate(invoice.date)}</td>
+                    <td class="invoice-value">£${parseFloat(invoice.value).toFixed(2)}</td>
+                    <td>
+                        <div class="actions-cell">
+                            <button class="btn btn-view" onclick="viewInvoice('${invoice.id}')">View</button>
+                            <button class="btn btn-delete" onclick="showDeleteConfirmation('${invoice.id}')">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+
+        // Show add invoice modal
+        elements.addInvoiceBtn.addEventListener('click', () => {
+            elements.invoiceNumber.value = '';
+            elements.teamName.value = '';
+            elements.invoiceDate.value = '';
+            elements.invoiceValue.value = '';
+            elements.addInvoiceModal.classList.add('visible');
+        });
+
+        // Close modal
+        elements.cancelBtn.addEventListener('click', () => {
+            elements.addInvoiceModal.classList.remove('visible');
+        });
+
+        // Close modal on background click
+        elements.addInvoiceModal.addEventListener('click', (e) => {
+            if (e.target === elements.addInvoiceModal) {
+                elements.addInvoiceModal.classList.remove('visible');
+            }
+        });
+
+        elements.deleteModal.addEventListener('click', (e) => {
+            if (e.target === elements.deleteModal) {
+                hideDeleteModal();
+            }
+        });
+
+        // Add invoice
+        elements.confirmBtn.addEventListener('click', async () => {
+            const invoiceNumber = elements.invoiceNumber.value.trim();
+            const teamName = elements.teamName.value;
+            const invoiceDate = elements.invoiceDate.value;
+            const invoiceValue = elements.invoiceValue.value;
+
+            if (!invoiceNumber || !teamName || !invoiceDate || !invoiceValue) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            if (parseFloat(invoiceValue) <= 0) {
+                alert('Invoice value must be greater than 0');
+                return;
+            }
+
+            elements.confirmBtn.disabled = true;
+            elements.confirmBtn.textContent = 'Adding...';
+            hideAlerts();
+
+            try {
+                await addDoc(collection(db, "invoices"), {
+                    invoiceNumber: invoiceNumber,
+                    teamName: teamName,
+                    date: invoiceDate,
+                    value: parseFloat(invoiceValue),
+                    createdAt: new Date().toISOString()
+                });
+
+                showSuccess("Invoice added successfully!");
+                elements.addInvoiceModal.classList.remove('visible');
+                await loadInvoices();
+
+            } catch (error) {
+                console.error("Error adding invoice:", error);
+                showError(error.message);
+            } finally {
+                elements.confirmBtn.disabled = false;
+                elements.confirmBtn.textContent = 'Add Invoice';
+            }
+        });
+
+        // View invoice (placeholder)
+        window.viewInvoice = function(invoiceId) {
+            const invoice = invoices.find(inv => inv.id === invoiceId);
+            if (invoice) {
+                alert(`Invoice Details:\n\nInvoice Number: ${invoice.invoiceNumber}\nTeam: ${invoice.teamName}\nDate: ${formatDate(invoice.date)}\nValue: £${parseFloat(invoice.value).toFixed(2)}`);
+            }
+        };
+
+        // Delete confirmation
+        window.showDeleteConfirmation = function(invoiceId) {
+            invoiceToDelete = invoiceId;
+            elements.deleteModal.classList.add('visible');
+        };
+
+        function hideDeleteModal() {
+            elements.deleteModal.classList.remove('visible');
+            invoiceToDelete = null;
+        }
+
+        elements.cancelDeleteBtn.addEventListener('click', hideDeleteModal);
+
+        elements.confirmDeleteBtn.addEventListener('click', async () => {
+            if (!invoiceToDelete) return;
+
+            try {
+                await deleteDoc(doc(db, "invoices", invoiceToDelete));
+                showSuccess("Invoice deleted successfully!");
+                hideDeleteModal();
+                await loadInvoices();
+
+            } catch (error) {
+                console.error("Error deleting invoice:", error);
+                showError(error.message);
+            }
+        });
+
+        // Search functionality
+        elements.searchBox.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                displayInvoices(invoices);
+            } else {
+                const filtered = invoices.filter(invoice => {
+                    return invoice.invoiceNumber.toLowerCase().includes(searchTerm) ||
+                           invoice.teamName.toLowerCase().includes(searchTerm);
+                });
+                displayInvoices(filtered);
+            }
+        });
+
+        // Alert functions
+        function showSuccess(message) {
+            elements.successAlert.textContent = `✓ ${message}`;
+            elements.successAlert.classList.add('visible');
+            setTimeout(() => {
+                elements.successAlert.classList.remove('visible');
+            }, 5000);
+        }
+
+        function showError(message) {
+            elements.errorAlert.textContent = `✗ ${message}`;
+            elements.errorAlert.classList.add('visible');
+            setTimeout(() => {
+                elements.errorAlert.classList.remove('visible');
+            }, 5000);
+        }
+
+        function hideAlerts() {
+            elements.successAlert.classList.remove('visible');
+            elements.errorAlert.classList.remove('visible');
+        }
+    </script>
+</body>
+</html>
