@@ -1236,19 +1236,22 @@
                             <div class="timestamp">Submitted: ${timestamp}</div>
                             ${progressButtons}
                             <div class="action-buttons">
-                                ${job.installationDate ? `
-                                    <button class="surveyor-button" style="background: linear-gradient(135deg, #43e97b, #38f9d7);" disabled>
-                                        ✓ Installation Confirmed
-                                    </button>
-                                ` : `
-                                    <button class="surveyor-button" onclick="openSurveyorAction('${job.id}')">
-                                        Surveyor Amend/Confirm
-                                    </button>
-                                `}
-                                <button class="assign-team-button" onclick="openAssignTeamModal('${job.id}')">
-                                    ${job.assignedTeam ? '👥 Change Team' : '👥 Assign Team'}
-                                </button>
-                            </div>
+    ${job.installationDate ? `
+        <button class="surveyor-button" style="background: linear-gradient(135deg, #43e97b, #38f9d7);" disabled>
+            ✓ Installation Confirmed
+        </button>
+    ` : `
+        <button class="surveyor-button" onclick="openSurveyorAction('${job.id}')">
+            Surveyor Amend/Confirm
+        </button>
+    `}
+    <button class="assign-team-button" onclick="openAssignTeamModal('${job.id}')">
+        ${job.assignedTeam ? '👥 Change Team' : '👥 Assign Team'}
+    </button>
+    <button class="surveyor-button" style="background: linear-gradient(135deg, #e74c3c, #c0392b);" onclick="cancelJob('${job.id}')">
+        ✕ Cancel Job
+    </button>
+</div>
                         </div>
                     </div>
                 </div>
