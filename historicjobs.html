@@ -163,6 +163,27 @@
             transition: all 0.3s ease;
             background: linear-gradient(to right, #fff9e6 0%, #ffffff 100%);
         }
+        .job-card.cancelled {
+    border-color: #e74c3c;
+    background: linear-gradient(to right, #ffe6e6 0%, #ffffff 100%);
+}
+
+.job-card.cancelled:hover {
+    border-color: #c0392b;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
+.cancelled-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
 
         .job-card:hover {
             border-color: #ff9a56;
@@ -548,7 +569,7 @@
         <div class="header">
             <div class="header-content">
                 <div class="header-icon">✓</div>
-                <h1>Historic Jobs (Completed)</h1>
+                <h1>Historic Jobs </h1>
             </div>
             <div class="search-container">
                 <input type="text" class="search-box" id="searchBox" placeholder="Search by job number, postcode or team...">
@@ -557,19 +578,23 @@
         </div>
 
         <div class="stats-container">
-            <div class="stat-card">
-                <div class="stat-number" id="totalCompleted">0</div>
-                <div class="stat-label">Total Completed</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="thisMonth">0</div>
-                <div class="stat-label">This Month</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="thisYear">0</div>
-                <div class="stat-label">This Year</div>
-            </div>
-        </div>
+    <div class="stat-card">
+        <div class="stat-number" id="totalHistoric">0</div>
+        <div class="stat-label">Total Historic</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" id="totalCompleted">0</div>
+        <div class="stat-label">Completed</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" id="totalCancelled">0</div>
+        <div class="stat-label">Cancelled</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" id="thisMonth">0</div>
+        <div class="stat-label">This Month</div>
+    </div>
+</div>
 
         <div class="jobs-container">
             <div class="loading" id="loading">Loading completed jobs...</div>
