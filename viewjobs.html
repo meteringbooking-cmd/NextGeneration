@@ -1664,32 +1664,69 @@
         }
 
         // Update Job Progress
-        window.updateJobProgress = async function(jobId, newStatus) {
-            const job = allJobs.find(j => j.id === jobId);
-            if (!job) return;
+window.updateJobProgress = async function(jobId, newStatus) {
+    const job = allJobs.find(j => j.id === jobId);
+    if (!job) return;
 
-            if (!confirm(`Update job status to "${newStatus.replace('in-progress-day-', 'Day ').replace('-', ' ')}"?`)) {
-                return;
-            }
+    if (!confirm(`Update job status to "${newStatus.replace('in-progress-day-', 'Day ').replace('-', ' ')}"?`)) {
+        return;
+    }
 
-            try {
-                const jobRef = doc(db, "solarSurveys", jobId);
-                await updateDoc(jobRef, {
-                    jobStatus: newStatus,
-                    lastStatusUpdate: new Date().toISOString()
-                });
+    try {
+        const jobRef = doc(db, "solarSurveys", jobId);
+        await updateDoc(jobRef, {
+            jobStatus: newStatus,
+            lastStatusUpdate: new Date().toISOString()
+        });
 
-                // Reload jobs to reflect changes
-                await loadJobs();
+        // If marking as completed, generate invoice
+        if (newStatus === 'completed') {
+            await generateInvoice(job);
+        }
 
-                // Show success message
-                alert(`Job status updated successfully!`);
+        // Reload jobs to reflect changes
+        await loadJobs();
 
-            } catch (error) {
-                console.error("Error updating job status: ", error);
-                alert("Error updating job status: " + error.message);
-            }
-        };
+        // Show success message
+        const message = newStatus === 'completed' 
+            ? 'Job completed and invoice generated successfully!' 
+            : 'Job status updated successfully!';
+        alert(message);
+
+    } catch (error) {
+        console.error("Error updating job status: ", error);
+        alert("Error updating job status: " + error.message);
+    }
+};
+
+// Generate Invoice
+async function generateInvoice(job) {
+    const subtotal = 8000;
+    const vat = subtotal * 0.20;
+    const total = subtotal + vat;
+    const jobDays = parseInt(job.projectedJobTime) || 2;
+
+    try {
+        await addDoc(collection(db, "invoices"), {
+            jobNumber: job.jobNumber,
+            jobId: job.id,
+            invoiceNumber: `INV-${job.jobNumber}`,
+            from: "Next Generation Utilities",
+            to: "OES",
+            date: new Date().toISOString(),
+            description: `${jobDays} Day Solar Installation`,
+            subtotal: subtotal,
+            vat: vat,
+            total: total,
+            createdAt: new Date().toISOString()
+        });
+
+        console.log("Invoice generated successfully for job:", job.jobNumber);
+    } catch (error) {
+        console.error("Error generating invoice:", error);
+        throw error;
+    }
+}
 
         // Search functionality
         document.getElementById('searchBox').addEventListener('input', function(e) {
