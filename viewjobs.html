@@ -1026,31 +1026,34 @@
             }
         }
 
-        // Display jobs
-        function displayJobs(jobs) {
-            const jobsList = document.getElementById('jobsList');
-            const noJobs = document.getElementById('noJobs');
+       // Display jobs
+function displayJobs(jobs) {
+    const jobsList = document.getElementById('jobsList');
+    const noJobs = document.getElementById('noJobs');
 
-            // Filter out completed jobs
-            const activeJobs = jobs.filter(job => job.jobStatus !== 'completed');
+    // Filter out completed and cancelled jobs
+    const activeJobs = jobs.filter(job => 
+        job.jobStatus !== 'completed' && 
+        job.jobStatus !== 'cancelled'
+    );
 
-            if (activeJobs.length === 0) {
-                jobsList.innerHTML = '';
-                noJobs.style.display = 'block';
-                return;
-            }
+    if (activeJobs.length === 0) {
+        jobsList.innerHTML = '';
+        noJobs.style.display = 'block';
+        return;
+    }
 
-            noJobs.style.display = 'none';
-            jobsList.innerHTML = activeJobs.map(job => createJobCard(job)).join('');
+    noJobs.style.display = 'none';
+    jobsList.innerHTML = activeJobs.map(job => createJobCard(job)).join('');
 
-            // Add click handlers
-            document.querySelectorAll('.job-header').forEach(header => {
-                header.addEventListener('click', function() {
-                    const card = this.closest('.job-card');
-                    card.classList.toggle('expanded');
-                });
-            });
-        }
+    // Add click handlers
+    document.querySelectorAll('.job-header').forEach(header => {
+        header.addEventListener('click', function() {
+            const card = this.closest('.job-card');
+            card.classList.toggle('expanded');
+        });
+    });
+}
 
         // Create job card HTML
         function createJobCard(job) {
@@ -1701,7 +1704,32 @@ window.updateJobProgress = async function(jobId, newStatus) {
         alert("Error updating job status: " + error.message);
     }
 };
+// Cancel Job
+window.cancelJob = async function(jobId) {
+    const job = allJobs.find(j => j.id === jobId);
+    if (!job) return;
 
+    if (!confirm(`Are you sure you want to cancel Job #${job.jobNumber}? This will move it to Historic Jobs.`)) {
+        return;
+    }
+
+    try {
+        const jobRef = doc(db, "solarSurveys", jobId);
+        await updateDoc(jobRef, {
+            jobStatus: 'cancelled',
+            cancelledAt: new Date().toISOString()
+        });
+
+        alert('Job cancelled successfully and moved to Historic Jobs');
+        
+        // Reload jobs to reflect changes
+        await loadJobs();
+
+    } catch (error) {
+        console.error("Error cancelling job: ", error);
+        alert("Error cancelling job: " + error.message);
+    }
+};
 // Generate Invoice
 async function generateInvoice(job) {
     const subtotal = 8000;
