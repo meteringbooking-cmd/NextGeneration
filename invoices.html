@@ -560,35 +560,38 @@
         loadCompletedJobs();
 
         async function loadCompletedJobs() {
-            elements.loading.style.display = 'block';
-            elements.invoicesTable.style.display = 'none';
-            elements.emptyState.style.display = 'none';
+    elements.loading.style.display = 'block';
+    elements.invoicesTable.style.display = 'none';
+    elements.emptyState.style.display = 'none';
 
-            try {
-                const q = query(
-                    collection(db, "solarSurveys"), 
-                    where("jobStatus", "==", "completed"),
-                    orderBy("lastStatusUpdate", "desc")
-                );
-                const querySnapshot = await getDocs(q);
-                
-                completedJobs = [];
-                querySnapshot.forEach((doc) => {
-                    completedJobs.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
+    try {
+        // Get all jobs and filter for completed ones
+        const q = query(collection(db, "solarSurveys"), orderBy("submittedAt", "desc"));
+        const querySnapshot = await getDocs(q);
+        
+        completedJobs = [];
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            // Check if job status is completed (case-insensitive)
+            if (data.jobStatus && data.jobStatus.toLowerCase() === 'completed') {
+                completedJobs.push({
+                    id: doc.id,
+                    ...data
                 });
-
-                elements.loading.style.display = 'none';
-                displayInvoices(completedJobs);
-
-            } catch (error) {
-                console.error("Error loading completed jobs:", error);
-                elements.loading.style.display = 'none';
-                elements.emptyState.style.display = 'block';
             }
-        }
+        });
+
+        console.log('Completed jobs found:', completedJobs.length); // Debug log
+
+        elements.loading.style.display = 'none';
+        displayInvoices(completedJobs);
+
+    } catch (error) {
+        console.error("Error loading completed jobs:", error);
+        elements.loading.style.display = 'none';
+        elements.emptyState.style.display = 'block';
+    }
+}
 
         function displayInvoices(jobs) {
             if (jobs.length === 0) {
