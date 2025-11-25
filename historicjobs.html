@@ -636,55 +636,63 @@
         let allJobs = [];
 
         async function loadJobs() {
-            const loading = document.getElementById('loading');
-            const noJobs = document.getElementById('noJobs');
+    const loading = document.getElementById('loading');
+    const noJobs = document.getElementById('noJobs');
 
-            try {
-                const snapshot = await getDocs(collection(db, "solarSurveys"));
-                
-                allJobs = [];
-                snapshot.forEach((doc) => {
-                    allJobs.push({ id: doc.id, ...doc.data() });
-                });
+    try {
+        const snapshot = await getDocs(collection(db, "solarSurveys"));
+        
+        allJobs = [];
+        snapshot.forEach((doc) => {
+            allJobs.push({ id: doc.id, ...doc.data() });
+        });
 
-                allCompletedJobs = allJobs.filter(job => job.jobStatus === 'completed');
-                
-                allCompletedJobs.sort((a, b) => {
-                    const dateA = a.lastStatusUpdate ? new Date(a.lastStatusUpdate) : new Date(0);
-                    const dateB = b.lastStatusUpdate ? new Date(b.lastStatusUpdate) : new Date(0);
-                    return dateB - dateA;
-                });
+        // Include both completed and cancelled jobs
+        allCompletedJobs = allJobs.filter(job => 
+            job.jobStatus === 'completed' || job.jobStatus === 'cancelled'
+        );
+        
+        allCompletedJobs.sort((a, b) => {
+            const dateA = a.lastStatusUpdate ? new Date(a.lastStatusUpdate) : new Date(0);
+            const dateB = b.lastStatusUpdate ? new Date(b.lastStatusUpdate) : new Date(0);
+            return dateB - dateA;
+        });
 
-                loading.style.display = 'none';
+        loading.style.display = 'none';
 
-                if (allCompletedJobs.length === 0) {
-                    noJobs.style.display = 'block';
-                } else {
-                    displayJobs(allCompletedJobs);
-                    updateStats(allCompletedJobs);
-                }
-            } catch (error) {
-                loading.innerHTML = '<div style="color: #e74c3c;">Error: ' + error.message + '</div>';
-            }
+        if (allCompletedJobs.length === 0) {
+            noJobs.style.display = 'block';
+        } else {
+            displayJobs(allCompletedJobs);
+            updateStats(allCompletedJobs);
         }
+    } catch (error) {
+        loading.innerHTML = '<div style="color: #e74c3c;">Error: ' + error.message + '</div>';
+    }
+}
 
-        function updateStats(jobs) {
-            const now = new Date();
-            document.getElementById('totalCompleted').textContent = jobs.length;
+function updateStats(jobs) {
+    const now = new Date();
+    
+    // Total historic jobs
+    document.getElementById('totalHistoric').textContent = jobs.length;
+    
+    // Total completed
+    const completedJobs = jobs.filter(job => job.jobStatus === 'completed');
+    document.getElementById('totalCompleted').textContent = completedJobs.length;
+    
+    // Total cancelled
+    const cancelledJobs = jobs.filter(job => job.jobStatus === 'cancelled');
+    document.getElementById('totalCancelled').textContent = cancelledJobs.length;
 
-            const thisMonth = jobs.filter(job => {
-                if (!job.lastStatusUpdate) return false;
-                const d = new Date(job.lastStatusUpdate);
-                return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-            }).length;
-            document.getElementById('thisMonth').textContent = thisMonth;
-
-            const thisYear = jobs.filter(job => {
-                if (!job.lastStatusUpdate) return false;
-                return new Date(job.lastStatusUpdate).getFullYear() === now.getFullYear();
-            }).length;
-            document.getElementById('thisYear').textContent = thisYear;
-        }
+    // This month (both completed and cancelled)
+    const thisMonth = jobs.filter(job => {
+        if (!job.lastStatusUpdate) return false;
+        const d = new Date(job.lastStatusUpdate);
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    }).length;
+    document.getElementById('thisMonth').textContent = thisMonth;
+}
 
         function displayJobs(jobs) {
             const jobsList = document.getElementById('jobsList');
@@ -707,84 +715,90 @@
         }
 
         function createJobCard(job) {
-            const submitted = job.submittedAt ? new Date(job.submittedAt.toDate()).toLocaleString() : 'N/A';
-            const completed = job.lastStatusUpdate ? new Date(job.lastStatusUpdate).toLocaleDateString('en-GB', { 
-                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
-            }) : 'N/A';
-            
-            const files = job.uploadedFiles || [];
-            const sortedFiles = [...files].sort((a, b) => {
-                return new Date(b.uploadedAt || 0) - new Date(a.uploadedAt || 0);
-            });
+    const submitted = job.submittedAt ? new Date(job.submittedAt.toDate()).toLocaleString() : 'N/A';
+    const statusDate = job.lastStatusUpdate ? new Date(job.lastStatusUpdate).toLocaleDateString('en-GB', { 
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+    }) : 'N/A';
+    
+    const isCancelled = job.jobStatus === 'cancelled';
+    const statusLabel = isCancelled ? 'Cancelled' : 'Completed';
+    const statusBadgeClass = isCancelled ? 'cancelled-badge' : 'completed-badge';
+    const statusIcon = isCancelled ? '✕' : '✓';
+    const cardClass = isCancelled ? 'cancelled' : '';
+    
+    const files = job.uploadedFiles || [];
+    const sortedFiles = [...files].sort((a, b) => {
+        return new Date(b.uploadedAt || 0) - new Date(a.uploadedAt || 0);
+    });
 
-            const filesHTML = sortedFiles.length > 0 ? `
-                <div class="files-section">
-                    <h3>📎 Files (${sortedFiles.length})</h3>
-                    <div class="files-grid">
-                        ${sortedFiles.map(f => `
-                            <div class="file-preview-card" onclick="openFile('${f.url}', '${f.name.replace(/'/g, "\\'")}', '${f.type || ''}')">
-                                <div class="file-preview-icon">${getIcon(f.name)}</div>
-                                <div class="file-preview-name">${f.name}</div>
-                                <div class="file-preview-date">${formatDate(f.uploadedAt)}</div>
-                            </div>
-                        `).join('')}
+    const filesHTML = sortedFiles.length > 0 ? `
+        <div class="files-section">
+            <h3>📎 Files (${sortedFiles.length})</h3>
+            <div class="files-grid">
+                ${sortedFiles.map(f => `
+                    <div class="file-preview-card" onclick="openFile('${f.url}', '${f.name.replace(/'/g, "\\'")}', '${f.type || ''}')">
+                        <div class="file-preview-icon">${getIcon(f.name)}</div>
+                        <div class="file-preview-name">${f.name}</div>
+                        <div class="file-preview-date">${formatDate(f.uploadedAt)}</div>
                     </div>
+                `).join('')}
+            </div>
+        </div>
+    ` : '<div class="files-section"><h3>📎 Files</h3><div class="no-files">No files</div></div>';
+    
+    return `
+        <div class="job-card ${cardClass}">
+            <div class="job-header">
+                <div class="job-summary">
+                    <div class="job-number">Job #${job.jobNumber}</div>
+                    <div class="job-postcode">📍 ${job.customerDetails?.postcode || 'N/A'}</div>
+                    ${job.installationDate ? `<div class="job-postcode" style="color:#43e97b;">📅 ${new Date(job.installationDate).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})}</div>` : ''}
+                    ${job.assignedTeam ? `<div class="team-badge">👥 Team ${job.assignedTeam}</div>` : ''}
+                    <div class="${statusBadgeClass}">${statusIcon} ${statusLabel}</div>
                 </div>
-            ` : '<div class="files-section"><h3>📎 Files</h3><div class="no-files">No files</div></div>';
-            
-            return `
-                <div class="job-card">
-                    <div class="job-header">
-                        <div class="job-summary">
-                            <div class="job-number">Job #${job.jobNumber}</div>
-                            <div class="job-postcode">📍 ${job.customerDetails?.postcode || 'N/A'}</div>
-                            ${job.installationDate ? `<div class="job-postcode" style="color:#43e97b;">📅 ${new Date(job.installationDate).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})}</div>` : ''}
-                            ${job.assignedTeam ? `<div class="team-badge">👥 Team ${job.assignedTeam}</div>` : ''}
-                            <div class="completed-badge">✓ Completed</div>
-                        </div>
-                        <div class="expand-icon">▼</div>
-                    </div>
-                    <div class="job-details">
-                        <div class="job-details-content">
-                            <div class="completion-info">
-                                <div class="completion-info-icon">✓</div>
-                                <div class="completion-info-text">
-                                    <div class="completion-info-label">Completed On</div>
-                                    <div class="completion-info-date">${completed}</div>
-                                </div>
-                            </div>
-                            <div class="details-grid">
-                                <div class="detail-section">
-                                    <h3>👤 Customer</h3>
-                                    <div class="detail-item"><span class="detail-label">Name:</span><br><span class="detail-value">${job.customerDetails?.name || 'N/A'}</span></div>
-                                    <div class="detail-item"><span class="detail-label">Phone:</span><br><span class="detail-value">${job.customerDetails?.phone || 'N/A'}</span></div>
-                                    <div class="detail-item"><span class="detail-label">Email:</span><br><span class="detail-value">${job.customerDetails?.email || 'N/A'}</span></div>
-                                </div>
-                                <div class="detail-section">
-                                    <h3>📍 Address</h3>
-                                    <div class="detail-value">${job.customerDetails?.addressLine1 || 'N/A'}<br>${job.customerDetails?.townCity || 'N/A'}<br>${job.customerDetails?.postcode || 'N/A'}</div>
-                                </div>
-                                <div class="detail-section">
-                                    <h3>☀️ Equipment</h3>
-                                    <div class="detail-item"><span class="detail-label">Solar Panels:</span> ${job.solarPanels || 0}</div>
-                                    <div class="detail-item"><span class="detail-label">Batteries:</span> ${job.batteries || 0}</div>
-                                    <div class="detail-item"><span class="detail-label">Hooks:</span> ${job.hooks || 0}</div>
-                                    <div class="detail-item"><span class="detail-label">Rails:</span> ${job.rails || 0}</div>
-                                </div>
-                                <div class="detail-section">
-                                    <h3>⚙️ Configuration</h3>
-                                    <div class="detail-item"><span class="detail-label">Array Type:</span><br><span class="detail-value">${job.arrayConfig || 'N/A'}</span></div>
-                                    ${job.projectedJobTime ? `<div class="detail-item"><span class="detail-label">Timeframe:</span><br><span class="detail-value">${job.projectedJobTime}</span></div>` : ''}
-                                </div>
-                                ${job.notes ? `<div class="notes-section"><h3>📝 Notes</h3><div class="detail-value">${job.notes}</div></div>` : ''}
-                                ${filesHTML}
-                            </div>
-                            <div class="timestamp">Submitted: ${submitted}</div>
+                <div class="expand-icon">▼</div>
+            </div>
+            <div class="job-details">
+                <div class="job-details-content">
+                    <div class="completion-info" style="${isCancelled ? 'background: linear-gradient(135deg, #ffe6e6, #ffffff); border-left-color: #e74c3c;' : ''}">
+                        <div class="completion-info-icon">${statusIcon}</div>
+                        <div class="completion-info-text">
+                            <div class="completion-info-label" style="${isCancelled ? 'color: #e74c3c;' : ''}">${statusLabel} On</div>
+                            <div class="completion-info-date">${statusDate}</div>
                         </div>
                     </div>
+                    <div class="details-grid">
+                        <div class="detail-section">
+                            <h3>👤 Customer</h3>
+                            <div class="detail-item"><span class="detail-label">Name:</span><br><span class="detail-value">${job.customerDetails?.name || 'N/A'}</span></div>
+                            <div class="detail-item"><span class="detail-label">Phone:</span><br><span class="detail-value">${job.customerDetails?.phone || 'N/A'}</span></div>
+                            <div class="detail-item"><span class="detail-label">Email:</span><br><span class="detail-value">${job.customerDetails?.email || 'N/A'}</span></div>
+                        </div>
+                        <div class="detail-section">
+                            <h3>📍 Address</h3>
+                            <div class="detail-value">${job.customerDetails?.addressLine1 || 'N/A'}<br>${job.customerDetails?.townCity || 'N/A'}<br>${job.customerDetails?.postcode || 'N/A'}</div>
+                        </div>
+                        <div class="detail-section">
+                            <h3>☀️ Equipment</h3>
+                            <div class="detail-item"><span class="detail-label">Solar Panels:</span> ${job.solarPanels || 0}</div>
+                            <div class="detail-item"><span class="detail-label">Batteries:</span> ${job.batteries || 0}</div>
+                            <div class="detail-item"><span class="detail-label">Hooks:</span> ${job.hooks || 0}</div>
+                            <div class="detail-item"><span class="detail-label">Rails:</span> ${job.rails || 0}</div>
+                        </div>
+                        <div class="detail-section">
+                            <h3>⚙️ Configuration</h3>
+                            <div class="detail-item"><span class="detail-label">Array Type:</span><br><span class="detail-value">${job.arrayConfig || 'N/A'}</span></div>
+                            ${job.projectedJobTime ? `<div class="detail-item"><span class="detail-label">Timeframe:</span><br><span class="detail-value">${job.projectedJobTime}</span></div>` : ''}
+                        </div>
+                        ${job.notes ? `<div class="notes-section"><h3>📝 Notes</h3><div class="detail-value">${job.notes}</div></div>` : ''}
+                        ${filesHTML}
+                    </div>
+                    <div class="timestamp">Submitted: ${submitted}</div>
                 </div>
-            `;
-        }
+            </div>
+        </div>
+    `;
+}
 
         function getIcon(name) {
             const ext = name.split('.').pop().toLowerCase();
